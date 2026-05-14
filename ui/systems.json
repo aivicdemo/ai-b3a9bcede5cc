@@ -1,0 +1,1655 @@
+[
+  {
+    "systemId": "itg-1",
+    "systemName": "AI需要予測・発注管理システムの構築",
+    "screens": [
+      {
+        "id": "scr-1778591780173",
+        "name": "ダッシュボード",
+        "purpose": "AI需要予測・発注管理システムの全体状況を一目で把握し、重要な指標やアラート情報を表示して効率的な意思決定を支援する",
+        "items": [
+          "ヘッダーナビゲーション",
+          "ユーザー情報表示",
+          "店舗選択ドロップダウン",
+          "期間選択カレンダー",
+          "売上実績サマリーカード",
+          "需要予測精度指標",
+          "発注状況ステータス",
+          "在庫アラート通知",
+          "売上トレンドグラフ",
+          "商品別売上ランキング",
+          "天候影響分析チャート",
+          "イベント・季節要因表示"
+        ]
+      },
+      {
+        "id": "scr-1778591797884",
+        "name": "売上実績データ管理",
+        "purpose": "店舗の売上実績データを登録・編集・削除し、AI需要予測の基礎データとして活用するための管理画面",
+        "items": [
+          "売上実績一覧表示エリア",
+          "店舗選択ドロップダウン",
+          "商品選択ドロップダウン",
+          "売上日付範囲指定カレンダー",
+          "売上金額入力フィールド",
+          "売上数量入力フィールド",
+          "検索・絞り込みボタン",
+          "新規登録ボタン",
+          "編集ボタン",
+          "削除ボタン",
+          "一括インポートボタン",
+          "CSVエクスポートボタン"
+        ]
+      },
+      {
+        "id": "scr-1778591810814",
+        "name": "外部要因データ管理",
+        "purpose": "天候、イベント、季節情報などの外部要因データを一元管理し、需要予測の精度向上に必要なデータを収集・更新・分析するための画面",
+        "items": [
+          "外部要因データ一覧表示",
+          "データ種別選択タブ（天候・イベント・季節）",
+          "期間指定検索フィルター",
+          "店舗別絞り込み機能",
+          "天候データ手動入力フォーム",
+          "イベントデータ登録フォーム",
+          "季節情報設定フォーム",
+          "外部API連携設定ボタン",
+          "データ自動取得スケジュール設定",
+          "データ品質チェック結果表示",
+          "相関分析実行ボタン",
+          "データエクスポート機能"
+        ]
+      },
+      {
+        "id": "scr-1778591822586",
+        "name": "相関分析・比較分析",
+        "purpose": "売上実績と天候・イベント・季節などの外部要因との相関関係を分析し、需要予測の精度向上に活用するためのデータ分析画面",
+        "items": [
+          "分析対象期間選択カレンダー",
+          "店舗選択ドロップダウン",
+          "商品カテゴリ選択チェックボックス",
+          "分析要因選択（天候・イベント・季節）",
+          "相関係数表示テーブル",
+          "散布図グラフエリア",
+          "時系列比較チャート",
+          "相関強度ヒートマップ",
+          "分析結果サマリー表示パネル",
+          "比較対象商品選択リスト",
+          "統計値表示エリア（平均・標準偏差等）",
+          "分析実行ボタン"
+        ]
+      },
+      {
+        "id": "scr-1778591838939",
+        "name": "需要予測管理",
+        "purpose": "AI技術を活用して商品の需要を予測し、売上実績、天候、イベント、季節情報などの外部要因を分析して精度の高い需要予測を行い、適切な発注量の決定を支援する",
+        "items": [
+          "店舗選択ドロップダウン",
+          "商品カテゴリ選択",
+          "予測期間設定（開始日・終了日）",
+          "予測モデル選択（季節性考慮・イベント考慮・天候考慮）",
+          "AI予測実行ボタン",
+          "予測結果グラフ表示エリア",
+          "売上実績vs予測値比較チャート",
+          "影響要因分析結果表示",
+          "天候・イベント情報表示パネル",
+          "予測精度指標表示",
+          "商品別予測一覧テーブル",
+          "予測結果エクスポートボタン"
+        ]
+      },
+      {
+        "id": "scr-1778591852463",
+        "name": "発注管理",
+        "purpose": "AI需要予測結果に基づいて商品の発注を管理し、適切な発注量の決定と発注処理を行う画面",
+        "items": [
+          "店舗選択ドロップダウン",
+          "商品カテゴリ選択",
+          "発注日付範囲指定",
+          "商品検索ボックス",
+          "需要予測結果表示エリア",
+          "商品一覧テーブル",
+          "予測需要量表示",
+          "現在在庫数表示",
+          "推奨発注量表示",
+          "発注量入力フィールド",
+          "発注量調整ボタン",
+          "発注理由入力欄"
+        ]
+      },
+      {
+        "id": "scr-1778591864631",
+        "name": "データ収集ログ管理",
+        "purpose": "AI需要予測システムで使用する各種データの収集状況、エラー発生状況、データ品質を監視・管理し、システムの安定稼働を確保する",
+        "items": [
+          "ログ一覧表示エリア",
+          "データソース選択ドロップダウン",
+          "収集日時範囲指定カレンダー",
+          "ログレベル選択フィルター",
+          "エラー状況表示インジケーター",
+          "データ収集状況サマリー",
+          "検索・絞り込みボタン",
+          "ログ詳細表示モーダル",
+          "エラーログ再実行ボタン",
+          "ログエクスポート機能",
+          "自動更新設定トグル",
+          "アラート通知設定ボタン"
+        ]
+      },
+      {
+        "id": "scr-1778591875396",
+        "name": "システム操作履歴管理",
+        "purpose": "システム利用者の操作履歴を記録・監視し、セキュリティ管理とシステム利用状況の分析を行う",
+        "items": [
+          "操作履歴一覧表示エリア",
+          "日付範囲指定フィルター",
+          "ユーザー絞り込み選択",
+          "操作種別フィルター",
+          "画面名・機能名検索",
+          "IPアドレス検索",
+          "操作結果フィルター（成功/失敗）",
+          "詳細検索ボタン",
+          "検索条件クリアボタン",
+          "CSV出力ボタン",
+          "操作履歴詳細表示モーダル",
+          "ページネーション"
+        ]
+      },
+      {
+        "id": "scr-1778591885672",
+        "name": "AI需要予測処理",
+        "purpose": "過去の売上実績、天候、イベント、季節情報などの外部要因を分析し、AIアルゴリズムを用いて商品の需要を予測する処理画面",
+        "items": [
+          "予測対象期間選択カレンダー",
+          "店舗選択ドロップダウン",
+          "商品カテゴリ選択チェックボックス",
+          "予測モデル選択ラジオボタン",
+          "外部要因設定パネル",
+          "天候データ取込ボタン",
+          "イベントデータ取込ボタン",
+          "季節要因設定スライダー",
+          "学習データ期間設定フィールド",
+          "予測精度閾値設定スピンボックス",
+          "AI予測実行ボタン",
+          "予測処理進捗バー"
+        ]
+      },
+      {
+        "id": "scr-1778591896813",
+        "name": "発注量計算画面",
+        "purpose": "AI需要予測結果に基づいて適切な発注量を計算し、発注業務を効率化する",
+        "items": [
+          "店舗選択ドロップダウン",
+          "商品カテゴリ選択",
+          "商品検索・絞り込み",
+          "対象期間設定",
+          "需要予測結果表示エリア",
+          "現在在庫数入力",
+          "安全在庫設定",
+          "リードタイム設定",
+          "天候・イベント影響度調整",
+          "季節補正係数設定",
+          "AI推奨発注量表示",
+          "手動調整入力欄"
+        ]
+      },
+      {
+        "id": "scr-1778591907544",
+        "name": "発注書作成画面",
+        "purpose": "AI需要予測結果を基に効率的な発注書を作成し、在庫最適化と売上機会損失を防ぐための発注業務を支援する",
+        "items": [
+          "店舗選択ドロップダウン",
+          "発注日付入力フィールド",
+          "納期指定カレンダー",
+          "商品カテゴリ選択タブ",
+          "商品検索ボックス",
+          "AI予測数量表示エリア",
+          "手動調整数量入力フィールド",
+          "予測根拠表示ボタン",
+          "商品別発注一覧テーブル",
+          "発注総額表示エリア",
+          "在庫状況確認ボタン",
+          "過去実績参照ボタン"
+        ]
+      },
+      {
+        "id": "scr-1778591920866",
+        "name": "発注送信処理",
+        "purpose": "AI需要予測結果に基づいて生成された発注データを仕入先に送信し、発注処理を完了させる画面",
+        "items": [
+          "発注送信対象一覧表示エリア",
+          "店舗選択ドロップダウン",
+          "発注日付表示フィールド",
+          "商品コード表示列",
+          "商品名表示列",
+          "予測需要数量表示列",
+          "発注数量表示列",
+          "仕入先名表示列",
+          "発注金額表示列",
+          "送信ステータス表示列",
+          "全選択チェックボックス",
+          "個別選択チェックボックス"
+        ]
+      },
+      {
+        "id": "scr-1778591931504",
+        "name": "発注量計算処理",
+        "purpose": "需要予測結果と在庫状況、リードタイム等を考慮して最適な発注量を自動計算し、発注データを生成する画面",
+        "items": [
+          "店舗選択ドロップダウン",
+          "商品カテゴリ選択",
+          "計算対象期間設定",
+          "需要予測結果表示エリア",
+          "現在在庫数表示",
+          "安全在庫数設定",
+          "リードタイム設定",
+          "発注点設定",
+          "計算実行ボタン",
+          "計算結果一覧テーブル",
+          "商品名列",
+          "予測需要量列"
+        ]
+      },
+      {
+        "id": "scr-1778591945891",
+        "name": "在庫照会画面",
+        "purpose": "店舗の現在在庫状況を確認し、商品別の在庫数量、入出庫履歴、安全在庫との比較を行い、適切な発注判断を支援する",
+        "items": [
+          "店舗選択ドロップダウン",
+          "商品カテゴリ選択フィルタ",
+          "商品名検索ボックス",
+          "商品コード検索ボックス",
+          "在庫状況フィルタ（適正・不足・過剰）",
+          "検索実行ボタン",
+          "検索条件クリアボタン",
+          "在庫一覧テーブル",
+          "商品コード列",
+          "商品名列",
+          "現在在庫数列",
+          "安全在庫数列"
+        ]
+      },
+      {
+        "id": "scr-1778591960771",
+        "name": "発注実行画面",
+        "purpose": "AI需要予測結果に基づいて商品の発注を実行し、発注内容の確認・調整・承認を行う画面",
+        "items": [
+          "店舗選択ドロップダウン",
+          "発注日付選択カレンダー",
+          "商品カテゴリフィルター",
+          "需要予測結果表示テーブル",
+          "商品コード表示列",
+          "商品名表示列",
+          "予測需要数量表示列",
+          "推奨発注数量表示列",
+          "現在在庫数量表示列",
+          "発注数量入力フィールド",
+          "発注単価表示列",
+          "発注金額計算表示列"
+        ]
+      },
+      {
+        "id": "scr-1778591974844",
+        "name": "予測精度監視画面",
+        "purpose": "AI需要予測の精度を監視し、予測モデルの性能評価と改善点の特定を行う",
+        "items": [
+          "予測精度サマリーカード",
+          "期間選択フィルター",
+          "店舗選択ドロップダウン",
+          "商品カテゴリ選択フィルター",
+          "予測精度推移グラフ",
+          "MAPE（平均絶対パーセント誤差）表示",
+          "RMSE（二乗平均平方根誤差）表示",
+          "予測vs実績比較チャート",
+          "精度ランキング表",
+          "アラート通知パネル",
+          "詳細分析ボタン",
+          "レポート出力ボタン"
+        ]
+      },
+      {
+        "id": "scr-1778591984641",
+        "name": "モデル設定画面",
+        "purpose": "AI需要予測モデルのパラメータ設定、学習データの選択、予測精度の調整を行い、店舗や商品に最適化された予測モデルを構築・管理する",
+        "items": [
+          "モデル名入力フィールド",
+          "対象店舗選択ドロップダウン",
+          "対象商品カテゴリ選択チェックボックス",
+          "学習期間設定カレンダー",
+          "予測期間設定ラジオボタン",
+          "使用データソース選択チェックボックス（売上・天候・イベント・季節）",
+          "アルゴリズム選択ドロップダウン",
+          "学習率設定スライダー",
+          "重み付け設定テーブル",
+          "季節性調整パラメータ入力",
+          "異常値除外設定チェックボックス",
+          "モデル精度目標値入力"
+        ]
+      },
+      {
+        "id": "scr-1778591999045",
+        "name": "モデルテスト機能",
+        "purpose": "構築したAI需要予測モデルの精度検証とパフォーマンステストを実施し、実運用前にモデルの有効性を確認する",
+        "items": [
+          "テスト対象モデル選択ドロップダウン",
+          "テスト期間設定（開始日・終了日）",
+          "対象店舗選択チェックボックス",
+          "対象商品カテゴリ選択",
+          "テストデータセット選択ラジオボタン",
+          "予測精度指標表示エリア（MAPE、RMSE等）",
+          "実績値vs予測値比較グラフ",
+          "モデル実行時間表示",
+          "テスト実行ボタン",
+          "テスト結果エクスポートボタン",
+          "過去のテスト履歴一覧テーブル",
+          "モデルパラメータ詳細表示パネル"
+        ]
+      },
+      {
+        "id": "scr-1778592013288",
+        "name": "モデル本番適用処理",
+        "purpose": "検証済みのAI需要予測モデルを本番環境に適用し、実際の発注業務で使用開始するための処理画面",
+        "items": [
+          "適用対象モデル選択ドロップダウン",
+          "モデル詳細情報表示エリア",
+          "適用対象店舗選択チェックボックス",
+          "適用開始日時入力フィールド",
+          "バックアップ設定チェックボックス",
+          "現行モデル保持期間設定",
+          "適用前検証結果表示",
+          "影響範囲確認表示",
+          "適用実行ボタン",
+          "適用状況進捗バー",
+          "適用結果ログ表示エリア",
+          "ロールバック実行ボタン"
+        ]
+      }
+    ],
+    "tableDefinitions": [
+      {
+        "tableName": "ログインユーザー",
+        "purpose": "AI需要予測・発注管理システムにアクセスするユーザーの認証情報と基本属性を管理する",
+        "columns": [
+          {
+            "name": "ユーザーID",
+            "type": "uuid",
+            "required": true,
+            "description": "ユーザーの一意識別子（主キー）"
+          },
+          {
+            "name": "ログインID",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "システムログイン時に使用するID（ユニーク）"
+          },
+          {
+            "name": "パスワードハッシュ",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "暗号化されたパスワード"
+          },
+          {
+            "name": "ユーザー名",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "システム内で表示されるユーザー名"
+          },
+          {
+            "name": "メールアドレス",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "通知送信先メールアドレス"
+          },
+          {
+            "name": "権限レベル",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "システム権限（管理者、発注担当者、閲覧者等）"
+          },
+          {
+            "name": "所属部署",
+            "type": "varchar(100)",
+            "required": false,
+            "description": "ユーザーの所属部署名"
+          },
+          {
+            "name": "アクティブフラグ",
+            "type": "boolean",
+            "required": true,
+            "description": "ユーザーの有効/無効状態"
+          },
+          {
+            "name": "最終ログイン日時",
+            "type": "timestamp",
+            "required": false,
+            "description": "最後にログインした日時"
+          },
+          {
+            "name": "作成日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "レコード作成日時"
+          },
+          {
+            "name": "更新日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "レコード最終更新日時"
+          },
+          {
+            "name": "作成者",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "レコード作成者"
+          }
+        ]
+      },
+      {
+        "tableName": "店舗マスタ",
+        "purpose": "AI需要予測・発注管理システムで管理する店舗の基本情報を管理するマスタテーブル",
+        "columns": [
+          {
+            "name": "店舗ID",
+            "type": "uuid",
+            "required": true,
+            "description": "店舗を一意に識別するID（主キー）"
+          },
+          {
+            "name": "店舗コード",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "店舗の業務用コード（検索・絞り込みで使用）"
+          },
+          {
+            "name": "店舗名",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "店舗の正式名称"
+          },
+          {
+            "name": "店舗名カナ",
+            "type": "varchar(100)",
+            "required": false,
+            "description": "店舗名のカナ表記（検索用）"
+          },
+          {
+            "name": "郵便番号",
+            "type": "varchar(100)",
+            "required": false,
+            "description": "店舗所在地の郵便番号"
+          },
+          {
+            "name": "住所",
+            "type": "text",
+            "required": false,
+            "description": "店舗の住所"
+          },
+          {
+            "name": "電話番号",
+            "type": "varchar(100)",
+            "required": false,
+            "description": "店舗の電話番号"
+          },
+          {
+            "name": "店舗区分",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "店舗の種別（直営店、FC店等）"
+          },
+          {
+            "name": "営業開始時刻",
+            "type": "varchar(100)",
+            "required": false,
+            "description": "店舗の営業開始時刻"
+          },
+          {
+            "name": "営業終了時刻",
+            "type": "varchar(100)",
+            "required": false,
+            "description": "店舗の営業終了時刻"
+          },
+          {
+            "name": "売場面積",
+            "type": "integer",
+            "required": false,
+            "description": "店舗の売場面積（需要予測の要素として使用）"
+          },
+          {
+            "name": "地域コード",
+            "type": "varchar(100)",
+            "required": false,
+            "description": "店舗が属する地域の分類コード（需要予測で使用）"
+          },
+          {
+            "name": "店舗責任者名",
+            "type": "varchar(100)",
+            "required": false,
+            "description": "店舗責任者の氏名"
+          },
+          {
+            "name": "有効フラグ",
+            "type": "boolean",
+            "required": true,
+            "description": "店舗が有効かどうか（検索・絞り込みで使用）"
+          },
+          {
+            "name": "開店日",
+            "type": "timestamp",
+            "required": false,
+            "description": "店舗の開店日"
+          },
+          {
+            "name": "閉店日",
+            "type": "timestamp",
+            "required": false,
+            "description": "店舗の閉店日（該当する場合）"
+          },
+          {
+            "name": "作成日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "レコード作成日時"
+          },
+          {
+            "name": "更新日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "レコード最終更新日時"
+          },
+          {
+            "name": "作成者ID",
+            "type": "uuid",
+            "required": true,
+            "description": "レコード作成者のユーザーID"
+          },
+          {
+            "name": "更新者ID",
+            "type": "uuid",
+            "required": true,
+            "description": "レコード最終更新者のユーザーID"
+          }
+        ]
+      },
+      {
+        "tableName": "商品マスタ",
+        "purpose": "AI需要予測・発注管理システムで扱う商品の基本情報を管理し、需要予測や発注処理の基準となるデータを提供する",
+        "columns": [
+          {
+            "name": "商品ID",
+            "type": "uuid",
+            "required": true,
+            "description": "商品を一意に識別するID（主キー）"
+          },
+          {
+            "name": "商品コード",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "商品の業務用コード（JANコード等）"
+          },
+          {
+            "name": "商品名",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "商品の名称"
+          },
+          {
+            "name": "商品カテゴリID",
+            "type": "uuid",
+            "required": true,
+            "description": "商品分類のカテゴリID"
+          },
+          {
+            "name": "仕入先ID",
+            "type": "uuid",
+            "required": true,
+            "description": "主要仕入先のID"
+          },
+          {
+            "name": "単価",
+            "type": "integer",
+            "required": true,
+            "description": "商品の仕入単価（円）"
+          },
+          {
+            "name": "販売価格",
+            "type": "integer",
+            "required": true,
+            "description": "商品の販売価格（円）"
+          },
+          {
+            "name": "発注単位",
+            "type": "integer",
+            "required": true,
+            "description": "発注時の最小単位数"
+          },
+          {
+            "name": "最小発注数量",
+            "type": "integer",
+            "required": true,
+            "description": "1回の発注で必要な最小数量"
+          },
+          {
+            "name": "リードタイム日数",
+            "type": "integer",
+            "required": true,
+            "description": "発注から納品までの日数"
+          },
+          {
+            "name": "賞味期限日数",
+            "type": "integer",
+            "required": false,
+            "description": "商品の賞味期限日数（該当商品のみ）"
+          },
+          {
+            "name": "季節性フラグ",
+            "type": "boolean",
+            "required": true,
+            "description": "季節による需要変動がある商品かどうか"
+          },
+          {
+            "name": "AI予測対象フラグ",
+            "type": "boolean",
+            "required": true,
+            "description": "AI需要予測の対象商品かどうか"
+          },
+          {
+            "name": "自動発注フラグ",
+            "type": "boolean",
+            "required": true,
+            "description": "自動発注機能を使用するかどうか"
+          },
+          {
+            "name": "有効フラグ",
+            "type": "boolean",
+            "required": true,
+            "description": "商品が有効（販売中）かどうか"
+          },
+          {
+            "name": "作成日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "レコード作成日時"
+          },
+          {
+            "name": "更新日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "レコード最終更新日時"
+          },
+          {
+            "name": "作成者ID",
+            "type": "uuid",
+            "required": true,
+            "description": "レコード作成者のユーザーID"
+          },
+          {
+            "name": "更新者ID",
+            "type": "uuid",
+            "required": true,
+            "description": "レコード最終更新者のユーザーID"
+          }
+        ]
+      },
+      {
+        "tableName": "売上実績データ",
+        "purpose": "AI需要予測・発注管理システムにおける過去の売上実績を記録し、需要予測の基礎データとして活用するためのトランザクションテーブル",
+        "columns": [
+          {
+            "name": "売上実績ID",
+            "type": "uuid",
+            "required": true,
+            "description": "売上実績データの一意識別子"
+          },
+          {
+            "name": "店舗ID",
+            "type": "uuid",
+            "required": true,
+            "description": "売上が発生した店舗の識別子（店舗マスタへの外部キー）"
+          },
+          {
+            "name": "商品ID",
+            "type": "uuid",
+            "required": true,
+            "description": "販売された商品の識別子（商品マスタへの外部キー）"
+          },
+          {
+            "name": "売上日",
+            "type": "timestamp",
+            "required": true,
+            "description": "売上が発生した日時"
+          },
+          {
+            "name": "販売数量",
+            "type": "integer",
+            "required": true,
+            "description": "販売された商品の数量"
+          },
+          {
+            "name": "単価",
+            "type": "integer",
+            "required": true,
+            "description": "販売時の商品単価（円）"
+          },
+          {
+            "name": "売上金額",
+            "type": "integer",
+            "required": true,
+            "description": "売上合計金額（販売数量×単価）"
+          },
+          {
+            "name": "曜日区分",
+            "type": "integer",
+            "required": true,
+            "description": "売上日の曜日（1:月曜日〜7:日曜日）需要予測での曜日別分析用"
+          },
+          {
+            "name": "祝日フラグ",
+            "type": "boolean",
+            "required": true,
+            "description": "売上日が祝日かどうかのフラグ（需要予測での祝日影響分析用）"
+          },
+          {
+            "name": "天候区分",
+            "type": "varchar(100)",
+            "required": false,
+            "description": "売上日の天候（晴れ、曇り、雨、雪等）需要予測での天候影響分析用"
+          },
+          {
+            "name": "気温",
+            "type": "integer",
+            "required": false,
+            "description": "売上日の気温（摂氏）需要予測での気温影響分析用"
+          },
+          {
+            "name": "特売フラグ",
+            "type": "boolean",
+            "required": true,
+            "description": "特売・セール対象商品かどうかのフラグ"
+          },
+          {
+            "name": "割引率",
+            "type": "integer",
+            "required": false,
+            "description": "適用された割引率（%）特売時の割引率"
+          },
+          {
+            "name": "在庫切れフラグ",
+            "type": "boolean",
+            "required": true,
+            "description": "売上日に在庫切れが発生したかどうかのフラグ（機会損失分析用）"
+          },
+          {
+            "name": "データ取込日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "POSシステム等からデータを取り込んだ日時"
+          },
+          {
+            "name": "作成日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "レコード作成日時"
+          },
+          {
+            "name": "更新日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "レコード最終更新日時"
+          },
+          {
+            "name": "作成者ID",
+            "type": "uuid",
+            "required": true,
+            "description": "レコード作成者のユーザーID（ログインユーザーへの外部キー）"
+          }
+        ]
+      },
+      {
+        "tableName": "天候データ",
+        "purpose": "AI需要予測システムで使用する天候情報を管理し、天候と売上の相関分析による需要予測精度向上を支援する",
+        "columns": [
+          {
+            "name": "天候データID",
+            "type": "uuid",
+            "required": true,
+            "description": "天候データの一意識別子（主キー）"
+          },
+          {
+            "name": "店舗ID",
+            "type": "uuid",
+            "required": true,
+            "description": "店舗マスタへの外部キー"
+          },
+          {
+            "name": "観測日",
+            "type": "timestamp",
+            "required": true,
+            "description": "天候データの観測日時"
+          },
+          {
+            "name": "天気",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "晴れ、曇り、雨、雪等の天気状況"
+          },
+          {
+            "name": "最高気温",
+            "type": "integer",
+            "required": false,
+            "description": "当日の最高気温（摂氏）"
+          },
+          {
+            "name": "最低気温",
+            "type": "integer",
+            "required": false,
+            "description": "当日の最低気温（摂氏）"
+          },
+          {
+            "name": "平均気温",
+            "type": "integer",
+            "required": false,
+            "description": "当日の平均気温（摂氏）"
+          },
+          {
+            "name": "降水量",
+            "type": "integer",
+            "required": false,
+            "description": "当日の降水量（mm）"
+          },
+          {
+            "name": "湿度",
+            "type": "integer",
+            "required": false,
+            "description": "当日の平均湿度（%）"
+          },
+          {
+            "name": "風速",
+            "type": "integer",
+            "required": false,
+            "description": "当日の平均風速（m/s）"
+          },
+          {
+            "name": "データ種別",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "実績値、予報値の区分"
+          },
+          {
+            "name": "データソース",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "気象庁、外部API等のデータ取得元"
+          },
+          {
+            "name": "作成日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "レコード作成日時"
+          },
+          {
+            "name": "更新日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "レコード最終更新日時"
+          },
+          {
+            "name": "作成者",
+            "type": "varchar(100)",
+            "required": false,
+            "description": "レコード作成者（システム自動取得の場合はnull）"
+          }
+        ]
+      },
+      {
+        "tableName": "イベントデータ",
+        "purpose": "地域や店舗周辺で発生するイベント情報を管理し、需要予測の精度向上に活用するためのマスタテーブル",
+        "columns": [
+          {
+            "name": "イベントID",
+            "type": "uuid",
+            "required": true,
+            "description": "イベントデータの一意識別子（主キー）"
+          },
+          {
+            "name": "店舗ID",
+            "type": "uuid",
+            "required": true,
+            "description": "対象店舗の識別子（店舗マスタへの外部キー）"
+          },
+          {
+            "name": "イベント名",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "イベントの名称"
+          },
+          {
+            "name": "イベント種別",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "イベントの分類（祭り、コンサート、スポーツ、セール等）"
+          },
+          {
+            "name": "開始日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "イベントの開始日時"
+          },
+          {
+            "name": "終了日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "イベントの終了日時"
+          },
+          {
+            "name": "予想来場者数",
+            "type": "integer",
+            "required": false,
+            "description": "イベントの予想来場者数"
+          },
+          {
+            "name": "影響度",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "売上への影響度（大・中・小）"
+          },
+          {
+            "name": "場所",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "イベント開催場所"
+          },
+          {
+            "name": "店舗からの距離",
+            "type": "integer",
+            "required": false,
+            "description": "店舗からイベント会場までの距離（メートル）"
+          },
+          {
+            "name": "備考",
+            "type": "text",
+            "required": false,
+            "description": "イベントに関する補足情報"
+          },
+          {
+            "name": "有効フラグ",
+            "type": "boolean",
+            "required": true,
+            "description": "データの有効性フラグ"
+          },
+          {
+            "name": "作成日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "レコード作成日時"
+          },
+          {
+            "name": "更新日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "レコード最終更新日時"
+          },
+          {
+            "name": "作成者",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "レコード作成者"
+          },
+          {
+            "name": "更新者",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "レコード最終更新者"
+          }
+        ]
+      },
+      {
+        "tableName": "季節情報データ",
+        "purpose": "AI需要予測で使用する季節要因データを管理し、商品需要の季節変動パターンを分析するための基礎データを提供する",
+        "columns": [
+          {
+            "name": "季節情報ID",
+            "type": "uuid",
+            "required": true,
+            "description": "季節情報データの一意識別子（主キー）"
+          },
+          {
+            "name": "年",
+            "type": "integer",
+            "required": true,
+            "description": "対象年（YYYY形式）"
+          },
+          {
+            "name": "月",
+            "type": "integer",
+            "required": true,
+            "description": "対象月（1-12）"
+          },
+          {
+            "name": "日",
+            "type": "integer",
+            "required": false,
+            "description": "対象日（1-31、月単位の場合はNULL）"
+          },
+          {
+            "name": "季節区分",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "季節の区分（春・夏・秋・冬・梅雨・年末年始等）"
+          },
+          {
+            "name": "季節係数",
+            "type": "integer",
+            "required": true,
+            "description": "需要予測で使用する季節補正係数（百分率、100が基準値）"
+          },
+          {
+            "name": "温度帯区分",
+            "type": "varchar(100)",
+            "required": false,
+            "description": "気温による商品需要への影響区分（高温期・低温期・適温期等）"
+          },
+          {
+            "name": "学校暦区分",
+            "type": "varchar(100)",
+            "required": false,
+            "description": "学校暦による影響区分（新学期・夏休み・冬休み・春休み等）"
+          },
+          {
+            "name": "商戦期区分",
+            "type": "varchar(100)",
+            "required": false,
+            "description": "商戦期による影響区分（クリスマス商戦・お中元・お歳暮等）"
+          },
+          {
+            "name": "備考",
+            "type": "text",
+            "required": false,
+            "description": "季節情報に関する補足説明"
+          },
+          {
+            "name": "有効フラグ",
+            "type": "boolean",
+            "required": true,
+            "description": "データの有効性フラグ（true:有効、false:無効）"
+          },
+          {
+            "name": "作成日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "レコード作成日時"
+          },
+          {
+            "name": "更新日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "レコード最終更新日時"
+          },
+          {
+            "name": "作成者",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "レコード作成者のユーザーID"
+          },
+          {
+            "name": "更新者",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "レコード最終更新者のユーザーID"
+          }
+        ]
+      },
+      {
+        "tableName": "需要予測結果",
+        "purpose": "AI需要予測システムで算出された商品別・店舗別・期間別の需要予測データを管理し、発注業務の基礎情報として活用する",
+        "columns": [
+          {
+            "name": "予測結果ID",
+            "type": "uuid",
+            "required": true,
+            "description": "需要予測結果の一意識別子（主キー）"
+          },
+          {
+            "name": "店舗ID",
+            "type": "uuid",
+            "required": true,
+            "description": "予測対象店舗の識別子（店舗マスタへの外部キー）"
+          },
+          {
+            "name": "商品ID",
+            "type": "uuid",
+            "required": true,
+            "description": "予測対象商品の識別子（商品マスタへの外部キー）"
+          },
+          {
+            "name": "予測対象日",
+            "type": "timestamp",
+            "required": true,
+            "description": "需要を予測する対象日"
+          },
+          {
+            "name": "予測数量",
+            "type": "integer",
+            "required": true,
+            "description": "AIが算出した予測需要数量"
+          },
+          {
+            "name": "予測精度",
+            "type": "integer",
+            "required": false,
+            "description": "予測の信頼度（パーセンテージ）"
+          },
+          {
+            "name": "推奨発注数量",
+            "type": "integer",
+            "required": false,
+            "description": "予測結果に基づく推奨発注数量"
+          },
+          {
+            "name": "予測モデルバージョン",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "使用したAI予測モデルのバージョン"
+          },
+          {
+            "name": "実績数量",
+            "type": "integer",
+            "required": false,
+            "description": "実際の売上数量（予測精度検証用）"
+          },
+          {
+            "name": "予測ステータス",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "予測状態（算出中/完了/エラー/承認済み等）"
+          },
+          {
+            "name": "発注済フラグ",
+            "type": "boolean",
+            "required": true,
+            "description": "この予測結果に基づいて発注が実行されたかどうか"
+          },
+          {
+            "name": "備考",
+            "type": "text",
+            "required": false,
+            "description": "予測に関する補足情報や調整理由"
+          },
+          {
+            "name": "作成日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "予測結果の作成日時"
+          },
+          {
+            "name": "更新日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "予測結果の最終更新日時"
+          },
+          {
+            "name": "作成者ID",
+            "type": "uuid",
+            "required": false,
+            "description": "予測を実行したユーザーまたはシステムの識別子"
+          }
+        ]
+      },
+      {
+        "tableName": "発注データ",
+        "purpose": "AI需要予測に基づく商品発注の管理と履歴を記録するトランザクションテーブル",
+        "columns": [
+          {
+            "name": "発注ID",
+            "type": "uuid",
+            "required": true,
+            "description": "発注データの一意識別子（主キー）"
+          },
+          {
+            "name": "店舗ID",
+            "type": "uuid",
+            "required": true,
+            "description": "発注を行う店舗の識別子（店舗マスタへの外部キー）"
+          },
+          {
+            "name": "商品ID",
+            "type": "uuid",
+            "required": true,
+            "description": "発注対象商品の識別子（商品マスタへの外部キー）"
+          },
+          {
+            "name": "需要予測結果ID",
+            "type": "uuid",
+            "required": false,
+            "description": "参照した需要予測結果の識別子（需要予測結果テーブルへの外部キー）"
+          },
+          {
+            "name": "発注日",
+            "type": "timestamp",
+            "required": true,
+            "description": "発注を実行した日時"
+          },
+          {
+            "name": "納期予定日",
+            "type": "timestamp",
+            "required": true,
+            "description": "商品の納入予定日時"
+          },
+          {
+            "name": "発注数量",
+            "type": "integer",
+            "required": true,
+            "description": "発注した商品の数量"
+          },
+          {
+            "name": "予測数量",
+            "type": "integer",
+            "required": false,
+            "description": "AI予測による推奨発注数量"
+          },
+          {
+            "name": "発注単価",
+            "type": "integer",
+            "required": true,
+            "description": "商品1個あたりの発注単価（円）"
+          },
+          {
+            "name": "発注金額",
+            "type": "integer",
+            "required": true,
+            "description": "発注総額（発注数量×発注単価）"
+          },
+          {
+            "name": "発注方法",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "発注方法（AI自動発注、手動発注、AI推奨採用、AI推奨修正）"
+          },
+          {
+            "name": "発注ステータス",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "発注の処理状況（発注済、納品済、キャンセル等）"
+          },
+          {
+            "name": "仕入先ID",
+            "type": "uuid",
+            "required": true,
+            "description": "発注先の仕入業者識別子"
+          },
+          {
+            "name": "発注理由",
+            "type": "text",
+            "required": false,
+            "description": "発注の根拠や特記事項（イベント対応、緊急補充等）"
+          },
+          {
+            "name": "承認者ID",
+            "type": "uuid",
+            "required": false,
+            "description": "発注を承認したユーザーの識別子"
+          },
+          {
+            "name": "承認日時",
+            "type": "timestamp",
+            "required": false,
+            "description": "発注が承認された日時"
+          },
+          {
+            "name": "自動発注フラグ",
+            "type": "boolean",
+            "required": true,
+            "description": "AI による自動発注かどうか（true: 自動、false: 手動）"
+          },
+          {
+            "name": "作成日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "レコード作成日時"
+          },
+          {
+            "name": "更新日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "レコード最終更新日時"
+          },
+          {
+            "name": "作成者ID",
+            "type": "uuid",
+            "required": true,
+            "description": "レコード作成者のユーザーID"
+          },
+          {
+            "name": "更新者ID",
+            "type": "uuid",
+            "required": true,
+            "description": "レコード最終更新者のユーザーID"
+          }
+        ]
+      },
+      {
+        "tableName": "相関分析結果",
+        "purpose": "需要予測の精度向上のため、売上と各要因（天候、イベント、季節等）の相関関係を分析・管理する",
+        "columns": [
+          {
+            "name": "相関分析ID",
+            "type": "uuid",
+            "required": true,
+            "description": "相関分析結果の一意識別子"
+          },
+          {
+            "name": "店舗ID",
+            "type": "uuid",
+            "required": true,
+            "description": "分析対象店舗の識別子"
+          },
+          {
+            "name": "商品ID",
+            "type": "uuid",
+            "required": false,
+            "description": "分析対象商品の識別子（全商品分析の場合はNULL）"
+          },
+          {
+            "name": "分析期間開始日",
+            "type": "timestamp",
+            "required": true,
+            "description": "相関分析の対象期間開始日"
+          },
+          {
+            "name": "分析期間終了日",
+            "type": "timestamp",
+            "required": true,
+            "description": "相関分析の対象期間終了日"
+          },
+          {
+            "name": "要因種別",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "分析要因の種別（天候、イベント、季節、曜日等）"
+          },
+          {
+            "name": "要因項目名",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "具体的な要因項目名（気温、降水量、セール等）"
+          },
+          {
+            "name": "相関係数",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "売上との相関係数値"
+          },
+          {
+            "name": "有意性レベル",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "統計的有意性のレベル"
+          },
+          {
+            "name": "サンプル数",
+            "type": "integer",
+            "required": true,
+            "description": "分析に使用したデータのサンプル数"
+          },
+          {
+            "name": "分析アルゴリズム",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "使用した分析手法・アルゴリズム名"
+          },
+          {
+            "name": "分析結果評価",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "相関の強さの評価（強い、中程度、弱い等）"
+          },
+          {
+            "name": "予測モデル適用フラグ",
+            "type": "boolean",
+            "required": true,
+            "description": "この相関結果を予測モデルに適用するかのフラグ"
+          },
+          {
+            "name": "備考",
+            "type": "text",
+            "required": false,
+            "description": "分析結果に関する補足情報や注意事項"
+          },
+          {
+            "name": "分析実行日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "相関分析を実行した日時"
+          },
+          {
+            "name": "分析実行者ID",
+            "type": "uuid",
+            "required": true,
+            "description": "分析を実行したユーザーの識別子"
+          },
+          {
+            "name": "作成日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "レコード作成日時"
+          },
+          {
+            "name": "更新日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "レコード最終更新日時"
+          }
+        ]
+      },
+      {
+        "tableName": "データ収集ログ",
+        "purpose": "AI需要予測システムで使用する各種データの収集状況、処理結果、エラー情報を記録し、データ品質管理と障害対応を支援する",
+        "columns": [
+          {
+            "name": "ログID",
+            "type": "uuid",
+            "required": true,
+            "description": "データ収集ログの一意識別子"
+          },
+          {
+            "name": "データ種別",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "収集対象データの種別（売上実績、天候データ、イベントデータ等）"
+          },
+          {
+            "name": "データソース",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "データの取得元（POSシステム、気象庁API、店舗システム等）"
+          },
+          {
+            "name": "店舗ID",
+            "type": "uuid",
+            "required": false,
+            "description": "対象店舗の識別子（店舗固有データの場合）"
+          },
+          {
+            "name": "収集開始日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "データ収集処理の開始日時"
+          },
+          {
+            "name": "収集終了日時",
+            "type": "timestamp",
+            "required": false,
+            "description": "データ収集処理の終了日時"
+          },
+          {
+            "name": "処理ステータス",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "処理状況（実行中、成功、失敗、警告）"
+          },
+          {
+            "name": "対象期間開始日",
+            "type": "timestamp",
+            "required": false,
+            "description": "収集対象データの期間開始日"
+          },
+          {
+            "name": "対象期間終了日",
+            "type": "timestamp",
+            "required": false,
+            "description": "収集対象データの期間終了日"
+          },
+          {
+            "name": "収集件数",
+            "type": "integer",
+            "required": false,
+            "description": "正常に収集できたデータ件数"
+          },
+          {
+            "name": "エラー件数",
+            "type": "integer",
+            "required": false,
+            "description": "収集時にエラーが発生したデータ件数"
+          },
+          {
+            "name": "エラーメッセージ",
+            "type": "text",
+            "required": false,
+            "description": "エラー発生時の詳細メッセージ"
+          },
+          {
+            "name": "処理時間秒",
+            "type": "integer",
+            "required": false,
+            "description": "データ収集処理にかかった時間（秒）"
+          },
+          {
+            "name": "データ品質スコア",
+            "type": "integer",
+            "required": false,
+            "description": "収集データの品質評価スコア（0-100）"
+          },
+          {
+            "name": "再実行フラグ",
+            "type": "boolean",
+            "required": true,
+            "description": "失敗時の再実行が必要かどうか"
+          },
+          {
+            "name": "通知送信フラグ",
+            "type": "boolean",
+            "required": true,
+            "description": "エラー通知を送信したかどうか"
+          },
+          {
+            "name": "備考",
+            "type": "text",
+            "required": false,
+            "description": "処理に関する補足情報"
+          },
+          {
+            "name": "作成日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "ログレコードの作成日時"
+          },
+          {
+            "name": "更新日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "ログレコードの最終更新日時"
+          }
+        ]
+      },
+      {
+        "tableName": "システム操作履歴",
+        "purpose": "AI需要予測・発注管理システムにおけるユーザーの操作履歴を記録し、システム利用状況の分析、セキュリティ監査、操作トレーサビリティを提供する",
+        "columns": [
+          {
+            "name": "操作履歴ID",
+            "type": "uuid",
+            "required": true,
+            "description": "操作履歴の一意識別子"
+          },
+          {
+            "name": "ユーザーID",
+            "type": "uuid",
+            "required": true,
+            "description": "操作を実行したユーザーの識別子"
+          },
+          {
+            "name": "店舗ID",
+            "type": "uuid",
+            "required": false,
+            "description": "操作対象の店舗識別子（店舗固有の操作の場合）"
+          },
+          {
+            "name": "操作種別",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "操作の種類（ログイン、需要予測実行、発注作成、データ更新、検索、画面表示等）"
+          },
+          {
+            "name": "操作画面",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "操作が実行された画面名（需要予測画面、発注管理画面、商品マスタ画面等）"
+          },
+          {
+            "name": "操作対象テーブル",
+            "type": "varchar(100)",
+            "required": false,
+            "description": "操作対象となったテーブル名"
+          },
+          {
+            "name": "操作対象ID",
+            "type": "varchar(100)",
+            "required": false,
+            "description": "操作対象レコードの識別子"
+          },
+          {
+            "name": "操作内容",
+            "type": "text",
+            "required": false,
+            "description": "操作の詳細内容（検索条件、更新内容等）"
+          },
+          {
+            "name": "IPアドレス",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "操作元のIPアドレス"
+          },
+          {
+            "name": "ユーザーエージェント",
+            "type": "text",
+            "required": false,
+            "description": "操作に使用されたブラウザ情報"
+          },
+          {
+            "name": "処理結果",
+            "type": "varchar(100)",
+            "required": true,
+            "description": "操作の処理結果（成功、失敗、エラー等）"
+          },
+          {
+            "name": "エラーメッセージ",
+            "type": "text",
+            "required": false,
+            "description": "エラー発生時のエラーメッセージ"
+          },
+          {
+            "name": "処理時間",
+            "type": "integer",
+            "required": false,
+            "description": "処理にかかった時間（ミリ秒）"
+          },
+          {
+            "name": "操作日時",
+            "type": "timestamp",
+            "required": true,
+            "description": "操作が実行された日時"
+          }
+        ]
+      }
+    ]
+  }
+]
