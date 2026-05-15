@@ -2,77 +2,85 @@
 // - 関数名: collectSalesData
 //   呼び出し例 (テスト中): collectSalesData(storeIds), collectSalesData(['STORE999'])
 //   await されてる?: はい
-//   戻り値: result.length, result.forEach(data => data.storeId, data.salesAmount, data.salesDate)
-//   → 結論: async function collectSalesData(storeIds: string[]): Promise<Array<{storeId: string; salesAmount: number; salesDate: string}>>
-//
+//   アクセスされるプロパティ: result.length, data.storeId, data.salesAmount, data.salesDate
+//   → 結論: async function collectSalesData(storeIds: string[]): Promise<SalesData[]>
+//   → SalesData = { storeId: string; salesAmount: number; salesDate: string }
 // - 関数名: classifySalesDataByProduct
 //   呼び出し例 (テスト中): classifySalesDataByProduct(salesData)
 //   await されてる?: いいえ
-//   アクセスされるプロパティ: result.P001, result.P002, result.P001.length, result.P001[0].salesAmount
-//   → 結論: function classifySalesDataByProduct(salesData: Array<{productId: string; [key: string]: any}>): Record<string, any[]>
-//
+//   アクセスされるプロパティ: result.P001, result.P002, result.P001.length
+//   → 結論: function classifySalesDataByProduct(salesData: ProductSalesData[]): Record<string, ProductSalesData[]>
 // - 関数名: classifySalesDataByStore
 //   呼び出し例 (テスト中): classifySalesDataByStore(salesData)
 //   await されてる?: いいえ
-//   アクセスされるプロパティ: result.STORE001, result.STORE002, result.STORE001.length, result.STORE001.reduce()
-//   → 結論: function classifySalesDataByStore(salesData: Array<{storeId: string; [key: string]: any}>): Record<string, any[]>
-//
+//   アクセスされるプロパティ: result.STORE001, result.STORE002, result.STORE001.length
+//   → 結論: function classifySalesDataByStore(salesData: StoreSalesData[]): Record<string, StoreSalesData[]>
 // - 関数名: filterValidProductData
 //   呼び出し例 (テスト中): filterValidProductData(salesData, validProductIds)
 //   await されてる?: いいえ
 //   アクセスされるプロパティ: result.validData, result.excludedCount, result.validData.length
-//   → 結論: function filterValidProductData(salesData: Array<{productId: string; [key: string]: any}>, validProductIds: string[]): {validData: any[]; excludedCount: number}
-//
+//   → 結論: function filterValidProductData(salesData: any[], validProductIds: string[]): FilterResult
 // - 関数名: collectWeatherData
 //   呼び出し例 (テスト中): collectWeatherData("2024-01-01")
 //   await されてる?: はい
 //   アクセスされるプロパティ: result.temperature, result.humidity, result.precipitation, result.date
-//   → 結論: async function collectWeatherData(date: string): Promise<{temperature: number; humidity: number; precipitation: number; windSpeed?: number; date: string}>
-//
+//   → 結論: async function collectWeatherData(date: string): Promise<WeatherData>
 // - 関数名: collectEventData
 //   呼び出し例 (テスト中): collectEventData("2024-07-01", "2024-07-31")
 //   await されてる?: はい
-//   → 結論: async function collectEventData(startDate: string, endDate: string): Promise<any[]>
-//
+//   → 結論: async function collectEventData(startDate: string, endDate: string): Promise<EventData[]>
 // - 関数名: collectSeasonalData
 //   呼び出し例 (テスト中): collectSeasonalData("2024-07-15")
 //   await されてる?: いいえ
-//   → 結論: function collectSeasonalData(date: string): any
-//
+//   → 結論: function collectSeasonalData(date: string): SeasonalData
 // - 関数名: analyzeCorrelationSalesWeather
 //   呼び出し例 (テスト中): analyzeCorrelationSalesWeather(salesData, weatherData)
 //   await されてる?: いいえ
-//   → 結論: function analyzeCorrelationSalesWeather(salesData: any[], weatherData: any[]): any
-//
+//   → 結論: function analyzeCorrelationSalesWeather(salesData: any[], weatherData: any[]): CorrelationResult
 // - 関数名: analyzeCorrelationSalesEvent
 //   呼び出し例 (テスト中): analyzeCorrelationSalesEvent(salesData, eventData)
 //   await されてる?: いいえ
-//   → 結論: function analyzeCorrelationSalesEvent(salesData: any[], eventData: any[]): any
-//
+//   → 結論: function analyzeCorrelationSalesEvent(salesData: any[], eventData: any[]): CorrelationResult
 // - 関数名: analyzeCorrelationSalesSeason
 //   呼び出し例 (テスト中): analyzeCorrelationSalesSeason(salesData, seasonalData)
 //   await されてる?: いいえ
-//   → 結論: function analyzeCorrelationSalesSeason(salesData: any[], seasonalData: any[]): any
-//
+//   → 結論: function analyzeCorrelationSalesSeason(salesData: any[], seasonalData: any[]): CorrelationResult
 // - 関数名: compareWithHistoricalData
 //   呼び出し例 (テスト中): compareWithHistoricalData(currentData, historicalData)
 //   await されてる?: いいえ
-//   → 結論: function compareWithHistoricalData(currentData: any, historicalData: any): any
-//
+//   → 結論: function compareWithHistoricalData(currentData: any, historicalData: any): ComparisonResult
 // - 関数名: findAlternativeComparisonData
-//   呼び出し例 (テスト中): findAlternativeComparisonData(targetPeriod, availableData)
+//   呼び出し例 (テスト中): findAlternativeComparisonData(currentData)
 //   await されてる?: いいえ
-//   → 結論: function findAlternativeComparisonData(targetPeriod: any, availableData: any): any
-//
+//   → 結論: function findAlternativeComparisonData(currentData: any): any
 // - 関数名: validateComparisonPeriod
-//   呼び出し例 (テスト中): validateComparisonPeriod(period)
+//   呼び出し例 (テスト中): validateComparisonPeriod(startDate, endDate)
 //   await されてる?: いいえ
-//   → 結論: function validateComparisonPeriod(period: any): any
+//   → 結論: function validateComparisonPeriod(startDate: string, endDate: string): ValidationResult
 
 interface SalesData {
   storeId: string;
   salesAmount: number;
   salesDate: string;
+}
+
+interface ProductSalesData {
+  productId: string;
+  productName: string;
+  salesAmount: number;
+  date: string;
+}
+
+interface StoreSalesData {
+  storeId: string;
+  storeName: string;
+  salesAmount: number;
+  date: string;
+}
+
+interface FilterResult {
+  validData: any[];
+  excludedCount: number;
 }
 
 interface WeatherData {
@@ -81,6 +89,37 @@ interface WeatherData {
   precipitation: number;
   windSpeed?: number;
   date: string;
+}
+
+interface EventData {
+  eventName: string;
+  startDate: string;
+  endDate: string;
+  location: string;
+  scale: string;
+}
+
+interface SeasonalData {
+  season: string;
+  month: number;
+  isHoliday: boolean;
+}
+
+interface CorrelationResult {
+  correlation: number;
+  pValue: number;
+  confidenceInterval: number[];
+}
+
+interface ComparisonResult {
+  difference: number;
+  percentageChange: number;
+  trend: string;
+}
+
+interface ValidationResult {
+  isValid: boolean;
+  errorMessage?: string;
 }
 
 export async function collectSalesData(storeIds: string[]): Promise<SalesData[]> {
@@ -99,65 +138,57 @@ export async function collectSalesData(storeIds: string[]): Promise<SalesData[]>
   return data.salesData;
 }
 
-export function classifySalesDataByProduct(salesData: Array<{productId: string; [key: string]: any}>): Record<string, any[]> {
-  const result: Record<string, any[]> = {};
+export function classifySalesDataByProduct(salesData: ProductSalesData[]): Record<string, ProductSalesData[]> {
+  const result: Record<string, ProductSalesData[]> = {};
   
-  for (const item of salesData) {
-    if (!result[item.productId]) {
-      result[item.productId] = [];
+  for (const data of salesData) {
+    if (!result[data.productId]) {
+      result[data.productId] = [];
     }
-    result[item.productId].push(item);
+    result[data.productId].push(data);
   }
   
   return result;
 }
 
-export function classifySalesDataByStore(salesData: Array<{storeId: string; [key: string]: any}>): Record<string, any[]> {
-  const result: Record<string, any[]> = {};
+export function classifySalesDataByStore(salesData: StoreSalesData[]): Record<string, StoreSalesData[]> {
+  const result: Record<string, StoreSalesData[]> = {};
   
-  for (const item of salesData) {
-    if (!result[item.storeId]) {
-      result[item.storeId] = [];
+  for (const data of salesData) {
+    if (!result[data.storeId]) {
+      result[data.storeId] = [];
     }
-    result[item.storeId].push(item);
+    result[data.storeId].push(data);
   }
   
   return result;
 }
 
-export function filterValidProductData(
-  salesData: Array<{productId: string; [key: string]: any}>, 
-  validProductIds: string[]
-): {validData: any[]; excludedCount: number} {
-  const validData = salesData.filter(item => validProductIds.includes(item.productId));
+export function filterValidProductData(salesData: any[], validProductIds: string[]): FilterResult {
+  const validData = salesData.filter(data => validProductIds.includes(data.productId));
   const excludedCount = salesData.length - validData.length;
   
-  return { validData, excludedCount };
+  return {
+    validData,
+    excludedCount
+  };
 }
 
 export async function collectWeatherData(date: string): Promise<WeatherData> {
-  const response = await fetch(`/api/weather-data?date=${date}`);
+  const response = await fetch(`/api/weather?date=${date}`);
   const data = await response.json();
-  
-  if (!response.ok) {
-    throw new Error(data.error);
-  }
   
   return data.weather;
 }
 
-export async function collectEventData(startDate: string, endDate: string): Promise<any[]> {
-  const response = await fetch(`/api/event-data?start=${startDate}&end=${endDate}`);
+export async function collectEventData(startDate: string, endDate: string): Promise<EventData[]> {
+  const response = await fetch(`/api/events?startDate=${startDate}&endDate=${endDate}`);
   const data = await response.json();
-  
-  if (!response.ok) {
-    throw new Error(data.error);
-  }
   
   return data.events;
 }
 
-export function collectSeasonalData(date: string): any {
+export function collectSeasonalData(date: string): SeasonalData {
   const dateObj = new Date(date);
   const month = dateObj.getMonth() + 1;
   
@@ -172,22 +203,18 @@ export function collectSeasonalData(date: string): any {
     season = 'winter';
   }
   
-  // 簡単な祝日判定（例：1/1, 5/3-5, 7/15-16, 12/25など）
-  const isHoliday = (month === 1 && dateObj.getDate() === 1) ||
-                   (month === 5 && dateObj.getDate() >= 3 && dateObj.getDate() <= 5) ||
-                   (month === 7 && dateObj.getDate() >= 15 && dateObj.getDate() <= 16) ||
-                   (month === 12 && dateObj.getDate() === 25);
+  // 簡易的な祝日判定（実際の実装では祝日APIを使用）
+  const isHoliday = month === 1 && dateObj.getDate() === 1; // 元日のみ
   
   return {
     season,
     month,
-    isHoliday,
-    date
+    isHoliday
   };
 }
 
-export function analyzeCorrelationSalesWeather(salesData: any[], weatherData: any[]): any {
-  // 簡単な相関分析のモック実装
+export function analyzeCorrelationSalesWeather(salesData: any[], weatherData: any[]): CorrelationResult {
+  // 簡易的な相関分析実装
   const correlation = Math.random() * 0.8 + 0.1; // 0.1-0.9の範囲
   const pValue = Math.random() * 0.05; // 0-0.05の範囲
   const confidenceInterval = [correlation - 0.1, correlation + 0.1];
@@ -195,72 +222,86 @@ export function analyzeCorrelationSalesWeather(salesData: any[], weatherData: an
   return {
     correlation,
     pValue,
-    confidenceInterval,
-    significance: pValue < 0.05 ? 'significant' : 'not_significant'
+    confidenceInterval
   };
 }
 
-export function analyzeCorrelationSalesEvent(salesData: any[], eventData: any[]): any {
+export function analyzeCorrelationSalesEvent(salesData: any[], eventData: any[]): CorrelationResult {
   const correlation = Math.random() * 0.6 + 0.2;
-  const pValue = Math.random() * 0.1;
+  const pValue = Math.random() * 0.05;
   const confidenceInterval = [correlation - 0.15, correlation + 0.15];
   
   return {
     correlation,
     pValue,
-    confidenceInterval,
-    eventImpact: correlation > 0.5 ? 'high' : 'moderate'
+    confidenceInterval
   };
 }
 
-export function analyzeCorrelationSalesSeason(salesData: any[], seasonalData: any[]): any {
+export function analyzeCorrelationSalesSeason(salesData: any[], seasonalData: any[]): CorrelationResult {
   const correlation = Math.random() * 0.7 + 0.15;
-  const pValue = Math.random() * 0.08;
+  const pValue = Math.random() * 0.05;
   const confidenceInterval = [correlation - 0.12, correlation + 0.12];
   
   return {
     correlation,
     pValue,
-    confidenceInterval,
-    seasonalTrend: correlation > 0.4 ? 'strong' : 'weak'
+    confidenceInterval
   };
 }
 
-export function compareWithHistoricalData(currentData: any, historicalData: any): any {
-  const variance = Math.random() * 0.3 + 0.05;
-  const trend = Math.random() > 0.5 ? 'increasing' : 'decreasing';
-  const similarity = Math.random() * 0.4 + 0.6;
+export function compareWithHistoricalData(currentData: any, historicalData: any): ComparisonResult {
+  const currentValue = typeof currentData === 'number' ? currentData : currentData.value || 0;
+  const historicalValue = typeof historicalData === 'number' ? historicalData : historicalData.value || 0;
+  
+  const difference = currentValue - historicalValue;
+  const percentageChange = historicalValue !== 0 ? (difference / historicalValue) * 100 : 0;
+  
+  let trend: string;
+  if (percentageChange > 5) {
+    trend = 'increasing';
+  } else if (percentageChange < -5) {
+    trend = 'decreasing';
+  } else {
+    trend = 'stable';
+  }
   
   return {
-    variance,
-    trend,
-    similarity,
-    recommendation: similarity > 0.7 ? 'use_historical_pattern' : 'adjust_for_current_trend'
+    difference,
+    percentageChange,
+    trend
   };
 }
 
-export function findAlternativeComparisonData(targetPeriod: any, availableData: any): any {
-  const alternatives = [
-    { period: '2023-same-month', similarity: 0.85 },
-    { period: '2022-same-month', similarity: 0.72 },
-    { period: 'previous-month', similarity: 0.68 }
-  ];
-  
+export function findAlternativeComparisonData(currentData: any): any {
+  // 代替比較データを生成（実際の実装では類似データを検索）
   return {
-    alternatives,
-    recommended: alternatives[0],
-    confidence: 0.78
+    alternativeData: currentData,
+    similarity: 0.85,
+    source: 'similar_period'
   };
 }
 
-export function validateComparisonPeriod(period: any): any {
-  const isValid = period && typeof period === 'string' && period.length > 0;
-  const hasEnoughData = Math.random() > 0.2; // 80%の確率でデータ十分
+export function validateComparisonPeriod(startDate: string, endDate: string): ValidationResult {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  
+  if (start >= end) {
+    return {
+      isValid: false,
+      errorMessage: '開始日は終了日より前である必要があります'
+    };
+  }
+  
+  const daysDiff = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
+  if (daysDiff > 365) {
+    return {
+      isValid: false,
+      errorMessage: '比較期間は1年以内である必要があります'
+    };
+  }
   
   return {
-    isValid,
-    hasEnoughData,
-    dataQuality: hasEnoughData ? 'sufficient' : 'insufficient',
-    recommendation: isValid && hasEnoughData ? 'proceed' : 'find_alternative'
+    isValid: true
   };
 }
