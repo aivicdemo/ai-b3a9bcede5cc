@@ -1,12 +1,11 @@
-// 型定義
 interface SalesData {
   storeId?: string;
-  storeName?: string;
-  productId?: string;
-  productName?: string;
   salesAmount: number;
   salesDate?: string;
+  productId?: string;
+  productName?: string;
   date?: string;
+  storeName?: string;
 }
 
 interface WeatherData {
@@ -28,19 +27,18 @@ interface EventData {
 interface SeasonalData {
   season: string;
   date: string;
-  factor: number;
 }
 
 interface CorrelationResult {
   correlation: number;
-  significance: number;
-  dataPoints: number;
+  pValue: number;
+  confidenceInterval: [number, number];
 }
 
 interface ComparisonResult {
   isValid: boolean;
-  similarity: number;
-  dataPoints: number;
+  reason?: string;
+  comparisonData?: any[];
 }
 
 interface FilterResult {
@@ -48,60 +46,50 @@ interface FilterResult {
   excludedCount: number;
 }
 
-interface AlternativeData {
-  period: string;
-  similarity: number;
-  dataAvailable: boolean;
-}
-
-// 売上データ収集
 export async function collectSalesData(storeIds: string[]): Promise<SalesData[]> {
   const response = await fetch('/api/sales');
   const data = await response.json();
   
   if (!response.ok || data.error) {
-    throw new Error(data.error || 'Failed to collect sales data');
+    throw new Error(data.error);
   }
   
-  return data.salesData || [];
+  return data.salesData;
 }
 
-// 商品別分類
 export function classifySalesDataByProduct(salesData: SalesData[]): Record<string, SalesData[]> {
   const result: Record<string, SalesData[]> = {};
   
-  salesData.forEach(data => {
-    if (data.productId) {
-      if (!result[data.productId]) {
-        result[data.productId] = [];
+  salesData.forEach(item => {
+    if (item.productId) {
+      if (!result[item.productId]) {
+        result[item.productId] = [];
       }
-      result[data.productId].push(data);
+      result[item.productId].push(item);
     }
   });
   
   return result;
 }
 
-// 店舗別分類
 export function classifySalesDataByStore(salesData: SalesData[]): Record<string, SalesData[]> {
   const result: Record<string, SalesData[]> = {};
   
-  salesData.forEach(data => {
-    if (data.storeId) {
-      if (!result[data.storeId]) {
-        result[data.storeId] = [];
+  salesData.forEach(item => {
+    if (item.storeId) {
+      if (!result[item.storeId]) {
+        result[item.storeId] = [];
       }
-      result[data.storeId].push(data);
+      result[item.storeId].push(item);
     }
   });
   
   return result;
 }
 
-// 有効商品データフィルタ
 export function filterValidProductData(salesData: SalesData[], validProductIds: string[]): FilterResult {
-  const validData = salesData.filter(data => 
-    data.productId && validProductIds.includes(data.productId)
+  const validData = salesData.filter(item => 
+    item.productId && validProductIds.includes(item.productId)
   );
   
   return {
@@ -110,129 +98,132 @@ export function filterValidProductData(salesData: SalesData[], validProductIds: 
   };
 }
 
-// 天候データ収集
 export async function collectWeatherData(date: string): Promise<WeatherData> {
   const response = await fetch('/api/weather');
   const data = await response.json();
   
-  if (!response.ok) {
-    throw new Error('Failed to collect weather data');
-  }
-  
   return data.weather;
 }
 
-// イベントデータ収集
 export async function collectEventData(startDate: string, endDate: string): Promise<EventData[]> {
   const response = await fetch('/api/events');
   const data = await response.json();
   
-  if (!response.ok) {
-    throw new Error('Failed to collect event data');
-  }
-  
-  return data.events || [];
+  return data.events;
 }
 
-// 季節データ収集
-export async function collectSeasonalData(year: number): Promise<SeasonalData[]> {
+export async function collectSeasonalData(date: string): Promise<SeasonalData> {
   const response = await fetch('/api/seasonal');
   const data = await response.json();
   
-  if (!response.ok) {
-    throw new Error('Failed to collect seasonal data');
-  }
-  
-  return data.seasonalData || [];
+  return data.seasonal;
 }
 
-// 売上と天候の相関分析
-export function analyzeCorrelationSalesWeather(salesData: SalesData[], weatherData: WeatherData[]): CorrelationResult {
-  if (salesData.length === 0 || weatherData.length === 0) {
-    return { correlation: 0, significance: 0, dataPoints: 0 };
-  }
+export function analyzeCorrelationSalesWeather(salesData: number[], weatherData: number[]): CorrelationResult {
+  // ピアソン相関係数の計算
+  const n = salesData.length;
+  const sumX = salesData.reduce((a, b) => a + b, 0);
+  const sumY = weatherData.reduce((a, b) => a + b, 0);
+  const sumXY = salesData.reduce((sum, x, i) => sum + x * weatherData[i], 0);
+  const sumX2 = salesData.reduce((sum, x) => sum + x * x, 0);
+  const sumY2 = weatherData.reduce((sum, y) => sum + y * y, 0);
   
-  // 簡単な相関計算（実際のピアソン相関係数の簡易版）
-  const correlation = Math.random() * 0.8 + 0.1; // 0.1-0.9の範囲
-  const significance = correlation > 0.5 ? 0.95 : 0.7;
+  const correlation = (n * sumXY - sumX * sumY) / 
+    Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+  
+  // 簡易的なp値計算
+  const t = correlation * Math.sqrt((n - 2) / (1 - correlation * correlation));
+  const pValue = 2 * (1 - Math.abs(t) / (Math.abs(t) + Math.sqrt(n - 2)));
+  
+  // 信頼区間の簡易計算
+  const margin = 1.96 / Math.sqrt(n - 3);
+  const confidenceInterval: [number, number] = [
+    Math.max(-1, correlation - margin),
+    Math.min(1, correlation + margin)
+  ];
   
   return {
-    correlation,
-    significance,
-    dataPoints: Math.min(salesData.length, weatherData.length)
+    correlation: isNaN(correlation) ? 0 : correlation,
+    pValue: isNaN(pValue) ? 1 : Math.max(0, Math.min(1, pValue)),
+    confidenceInterval
   };
 }
 
-// 売上とイベントの相関分析
-export function analyzeCorrelationSalesEvent(salesData: SalesData[], eventData: EventData[]): CorrelationResult {
-  if (salesData.length === 0 || eventData.length === 0) {
-    return { correlation: 0, significance: 0, dataPoints: 0 };
+export function analyzeCorrelationSalesEvent(salesData: number[], eventData: number[]): CorrelationResult {
+  return analyzeCorrelationSalesWeather(salesData, eventData);
+}
+
+export function analyzeCorrelationSalesSeason(salesData: number[], seasonalData: number[]): CorrelationResult {
+  return analyzeCorrelationSalesWeather(salesData, seasonalData);
+}
+
+export function compareWithHistoricalData(currentData: any[], historicalData: any[]): ComparisonResult {
+  if (!historicalData || historicalData.length === 0) {
+    return {
+      isValid: false,
+      reason: "比較対象の過去データが存在しません"
+    };
   }
   
-  const correlation = Math.random() * 0.6 + 0.2; // 0.2-0.8の範囲
-  const significance = correlation > 0.4 ? 0.9 : 0.6;
+  if (currentData.length !== historicalData.length) {
+    return {
+      isValid: false,
+      reason: "データ期間が一致しません"
+    };
+  }
   
   return {
-    correlation,
-    significance,
-    dataPoints: Math.min(salesData.length, eventData.length)
+    isValid: true,
+    comparisonData: historicalData
   };
 }
 
-// 売上と季節の相関分析
-export function analyzeCorrelationSalesSeason(salesData: SalesData[], seasonalData: SeasonalData[]): CorrelationResult {
-  if (salesData.length === 0 || seasonalData.length === 0) {
-    return { correlation: 0, significance: 0, dataPoints: 0 };
+export function findAlternativeComparisonData(targetPeriod: string, availableData: any[]): ComparisonResult {
+  const alternativeData = availableData.filter(data => 
+    data.period && data.period !== targetPeriod
+  );
+  
+  if (alternativeData.length === 0) {
+    return {
+      isValid: false,
+      reason: "代替比較データが見つかりません"
+    };
   }
   
-  const correlation = Math.random() * 0.7 + 0.15; // 0.15-0.85の範囲
-  const significance = correlation > 0.5 ? 0.92 : 0.75;
-  
   return {
-    correlation,
-    significance,
-    dataPoints: Math.min(salesData.length, seasonalData.length)
+    isValid: true,
+    comparisonData: alternativeData
   };
 }
 
-// 過去データとの比較
-export function compareWithHistoricalData(currentData: SalesData[], historicalData: SalesData[]): ComparisonResult {
-  if (currentData.length === 0 || historicalData.length === 0) {
-    return { isValid: false, similarity: 0, dataPoints: 0 };
+export function validateComparisonPeriod(startDate: string, endDate: string): ComparisonResult {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  
+  if (start >= end) {
+    return {
+      isValid: false,
+      reason: "開始日が終了日以降になっています"
+    };
   }
   
-  const similarity = Math.random() * 0.4 + 0.6; // 0.6-1.0の範囲
-  const isValid = similarity > 0.7;
+  const daysDiff = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
+  
+  if (daysDiff < 7) {
+    return {
+      isValid: false,
+      reason: "比較期間が短すぎます（最低7日間必要）"
+    };
+  }
+  
+  if (daysDiff > 365) {
+    return {
+      isValid: false,
+      reason: "比較期間が長すぎます（最大365日）"
+    };
+  }
   
   return {
-    isValid,
-    similarity,
-    dataPoints: Math.min(currentData.length, historicalData.length)
+    isValid: true
   };
-}
-
-// 代替比較データ検索
-export function findAlternativeComparisonData(targetPeriod: string, availablePeriods: string[]): AlternativeData[] {
-  return availablePeriods.map(period => ({
-    period,
-    similarity: Math.random() * 0.5 + 0.5, // 0.5-1.0の範囲
-    dataAvailable: true
-  })).sort((a, b) => b.similarity - a.similarity);
-}
-
-// 比較期間の妥当性検証
-export function validateComparisonPeriod(targetPeriod: string, comparisonPeriod: string): boolean {
-  if (!targetPeriod || !comparisonPeriod) {
-    return false;
-  }
-  
-  const targetDate = new Date(targetPeriod);
-  const comparisonDate = new Date(comparisonPeriod);
-  
-  if (isNaN(targetDate.getTime()) || isNaN(comparisonDate.getTime())) {
-    return false;
-  }
-  
-  // 比較期間が過去のデータであることを確認
-  return comparisonDate < targetDate;
 }
