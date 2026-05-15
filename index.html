@@ -16,20 +16,19 @@ window.AIVIC_PRESET_SEED = {};
     </script>
     <style>
         :root {
-            --primary: #4a9eff;
-            --primary-hover: #3d8ae6;
+            --primary: #00d4ff;
+            --primary-hover: #00b8e6;
             --bg-main: #0f0f0f;
             --bg-card: #1a1a1a;
             --bg-sidebar: #141414;
-            --border: #2a2a2a;
+            --border: #333333;
             --text: #e8e8e8;
             --text-muted: #a0a0a0;
             --top-bar-bg: #161616;
-            --top-bar-border: #2d2d2d;
-            --success: #22c55e;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --accent: #8b5cf6;
+            --top-bar-border: #2a2a2a;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --error: #ff4444;
         }
 
         * {
@@ -76,13 +75,13 @@ window.AIVIC_PRESET_SEED = {};
         .logo-icon {
             width: 32px;
             height: 32px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            color: white;
+            color: #000;
         }
 
         .nav-section {
@@ -95,43 +94,43 @@ window.AIVIC_PRESET_SEED = {};
             font-weight: 600;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
         }
 
         .nav-item {
-            display: flex;
-            align-items: center;
+            display: block;
             padding: 12px 20px;
-            color: var(--text-muted);
+            color: var(--text);
             text-decoration: none;
-            transition: all 0.2s ease;
-            cursor: pointer;
             border: none;
             background: none;
             width: 100%;
             text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
             font-size: 14px;
-            gap: 12px;
+            position: relative;
         }
 
         .nav-item:hover {
-            background: rgba(74, 158, 255, 0.1);
-            color: var(--text);
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--primary);
         }
 
         .nav-item.aivic-active {
-            background: rgba(74, 158, 255, 0.15);
+            background: rgba(0, 212, 255, 0.15);
             color: var(--primary);
             border-right: 3px solid var(--primary);
         }
 
-        .nav-icon {
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
+        .nav-item.aivic-active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--primary);
         }
 
         .main-content {
@@ -142,7 +141,7 @@ window.AIVIC_PRESET_SEED = {};
         }
 
         .top-bar {
-            height: 64px;
+            height: 60px;
             background: var(--top-bar-bg);
             border-bottom: 1px solid var(--top-bar-border);
             display: flex;
@@ -155,11 +154,16 @@ window.AIVIC_PRESET_SEED = {};
             display: flex;
             align-items: center;
             gap: 8px;
-            color: var(--text-muted);
             font-size: 14px;
+            color: var(--text-muted);
         }
 
-        .user-menu {
+        .breadcrumb-current {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .top-bar-actions {
             display: flex;
             align-items: center;
             gap: 16px;
@@ -169,10 +173,8 @@ window.AIVIC_PRESET_SEED = {};
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 6px 12px;
-            background: var(--bg-card);
-            border-radius: 6px;
             font-size: 12px;
+            color: var(--text-muted);
         }
 
         .status-dot {
@@ -184,8 +186,9 @@ window.AIVIC_PRESET_SEED = {};
 
         .content-area {
             flex: 1;
-            overflow-y: auto;
             padding: 24px;
+            overflow-y: auto;
+            background: var(--bg-main);
         }
 
         .panel-container {
@@ -193,7 +196,8 @@ window.AIVIC_PRESET_SEED = {};
             background: var(--bg-card);
             border-radius: 12px;
             border: 1px solid var(--border);
-            overflow: hidden;
+            padding: 24px;
+            overflow-y: auto;
         }
 
         .loading-state {
@@ -202,11 +206,12 @@ window.AIVIC_PRESET_SEED = {};
             justify-content: center;
             height: 200px;
             color: var(--text-muted);
+            font-size: 14px;
         }
 
         .spinner {
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             border: 2px solid var(--border);
             border-top: 2px solid var(--primary);
             border-radius: 50%;
@@ -219,25 +224,40 @@ window.AIVIC_PRESET_SEED = {};
             100% { transform: rotate(360deg); }
         }
 
-        .sidebar::-webkit-scrollbar,
-        .content-area::-webkit-scrollbar {
-            width: 6px;
+        .notification-badge {
+            background: var(--error);
+            color: white;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 8px;
         }
 
-        .sidebar::-webkit-scrollbar-track,
-        .content-area::-webkit-scrollbar-track {
-            background: var(--bg-sidebar);
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease;
         }
 
-        .sidebar::-webkit-scrollbar-thumb,
-        .content-area::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 3px;
+        .user-menu:hover {
+            background: rgba(255, 255, 255, 0.05);
         }
 
-        .sidebar::-webkit-scrollbar-thumb:hover,
-        .content-area::-webkit-scrollbar-thumb:hover {
-            background: var(--text-muted);
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #000;
         }
 
         @media (max-width: 768px) {
@@ -248,11 +268,11 @@ window.AIVIC_PRESET_SEED = {};
                 z-index: 1000;
                 transition: transform 0.3s ease;
             }
-            
+
             .sidebar.mobile-open {
                 transform: translateX(0);
             }
-            
+
             .main-content {
                 margin-left: 0;
             }
@@ -272,100 +292,81 @@ window.AIVIC_PRESET_SEED = {};
             <div class="nav-section">
                 <div class="nav-section-title">メインダッシュボード</div>
                 <button class="nav-item" data-aivic-nav="scr-1778591780173" onclick="showScreen('scr-1778591780173')">
-                    <span class="nav-icon">📊</span>
-                    ダッシュボード
+                    📊 ダッシュボード
                 </button>
             </div>
 
             <div class="nav-section">
                 <div class="nav-section-title">データ管理</div>
                 <button class="nav-item" data-aivic-nav="scr-1778591797884" onclick="showScreen('scr-1778591797884')">
-                    <span class="nav-icon">💰</span>
-                    売上実績データ管理
+                    💰 売上実績データ管理
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778591810814" onclick="showScreen('scr-1778591810814')">
-                    <span class="nav-icon">🌤️</span>
-                    外部要因データ管理
+                    🌤️ 外部要因データ管理
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778591822586" onclick="showScreen('scr-1778591822586')">
-                    <span class="nav-icon">📈</span>
-                    相関分析・比較分析
+                    📈 相関分析・比較分析
                 </button>
             </div>
 
             <div class="nav-section">
                 <div class="nav-section-title">AI予測・発注</div>
                 <button class="nav-item" data-aivic-nav="scr-1778591838939" onclick="showScreen('scr-1778591838939')">
-                    <span class="nav-icon">🤖</span>
-                    需要予測管理
+                    🤖 需要予測管理
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778591852463" onclick="showScreen('scr-1778591852463')">
-                    <span class="nav-icon">📦</span>
-                    発注管理
+                    📦 発注管理
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778591885672" onclick="showScreen('scr-1778591885672')">
-                    <span class="nav-icon">⚡</span>
-                    AI需要予測処理
+                    ⚡ AI需要予測処理
                 </button>
             </div>
 
             <div class="nav-section">
                 <div class="nav-section-title">発注業務</div>
                 <button class="nav-item" data-aivic-nav="scr-1778591896813" onclick="showScreen('scr-1778591896813')">
-                    <span class="nav-icon">🧮</span>
-                    発注量計算画面
+                    🧮 発注量計算画面
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778591907544" onclick="showScreen('scr-1778591907544')">
-                    <span class="nav-icon">📄</span>
-                    発注書作成画面
+                    📄 発注書作成画面
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778591920866" onclick="showScreen('scr-1778591920866')">
-                    <span class="nav-icon">📤</span>
-                    発注送信処理
+                    📤 発注送信処理
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778591931504" onclick="showScreen('scr-1778591931504')">
-                    <span class="nav-icon">⚙️</span>
-                    発注量計算処理
+                    ⚙️ 発注量計算処理
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778591945891" onclick="showScreen('scr-1778591945891')">
-                    <span class="nav-icon">📋</span>
-                    在庫照会画面
+                    📋 在庫照会画面
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778591960771" onclick="showScreen('scr-1778591960771')">
-                    <span class="nav-icon">✅</span>
-                    発注実行画面
+                    ✅ 発注実行画面
                 </button>
             </div>
 
             <div class="nav-section">
                 <div class="nav-section-title">モデル管理</div>
                 <button class="nav-item" data-aivic-nav="scr-1778591974844" onclick="showScreen('scr-1778591974844')">
-                    <span class="nav-icon">📊</span>
-                    予測精度監視画面
+                    📊 予測精度監視画面
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778591984641" onclick="showScreen('scr-1778591984641')">
-                    <span class="nav-icon">🔧</span>
-                    モデル設定画面
+                    ⚙️ モデル設定画面
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778591999045" onclick="showScreen('scr-1778591999045')">
-                    <span class="nav-icon">🧪</span>
-                    モデルテスト機能
+                    🧪 モデルテスト機能
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778592013288" onclick="showScreen('scr-1778592013288')">
-                    <span class="nav-icon">🚀</span>
-                    モデル本番適用処理
+                    🚀 モデル本番適用処理
                 </button>
             </div>
 
             <div class="nav-section">
                 <div class="nav-section-title">システム管理</div>
                 <button class="nav-item" data-aivic-nav="scr-1778591864631" onclick="showScreen('scr-1778591864631')">
-                    <span class="nav-icon">📝</span>
-                    データ収集ログ管理
+                    📝 データ収集ログ管理
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778591875396" onclick="showScreen('scr-1778591875396')">
-                    <span class="nav-icon">👤</span>
-                    システム操作履歴管理
+                    👤 システム操作履歴管理
                 </button>
             </div>
         </nav>
@@ -373,17 +374,18 @@ window.AIVIC_PRESET_SEED = {};
         <main class="main-content">
             <header class="top-bar">
                 <div class="breadcrumb">
-                    <span>AI需要予測・発注管理システム</span>
-                    <span>›</span>
-                    <span id="current-page-title">ダッシュボード</span>
+                    <span>AI需要予測システム</span>
+                    <span>/</span>
+                    <span class="breadcrumb-current" id="current-page-title">ダッシュボード</span>
                 </div>
-                <div class="user-menu">
+                <div class="top-bar-actions">
                     <div class="status-indicator">
                         <div class="status-dot"></div>
-                        <span>システム正常</span>
+                        <span>システム稼働中</span>
                     </div>
-                    <div class="status-indicator">
-                        <span>🔄 最終更新: 2分前</span>
+                    <div class="user-menu">
+                        <div class="user-avatar">U</div>
+                        <span>管理者</span>
                     </div>
                 </div>
             </header>
@@ -393,7 +395,7 @@ window.AIVIC_PRESET_SEED = {};
                     <div data-aivic-panel="scr-1778591780173">
                         <div class="loading-state">
                             <div class="spinner"></div>
-                            <span>ダッシュボードを読み込み中...</span>
+                            ダッシュボードを読み込み中...
                         </div>
                     </div>
                     <div data-aivic-panel="scr-1778591797884"></div>
@@ -420,50 +422,26 @@ window.AIVIC_PRESET_SEED = {};
     </div>
 
     <script>
-        // 画面タイトル更新機能
-        const screenTitles = {
-            'scr-1778591780173': 'ダッシュボード',
-            'scr-1778591797884': '売上実績データ管理',
-            'scr-1778591810814': '外部要因データ管理',
-            'scr-1778591822586': '相関分析・比較分析',
-            'scr-1778591838939': '需要予測管理',
-            'scr-1778591852463': '発注管理',
-            'scr-1778591864631': 'データ収集ログ管理',
-            'scr-1778591875396': 'システム操作履歴管理',
-            'scr-1778591885672': 'AI需要予測処理',
-            'scr-1778591896813': '発注量計算画面',
-            'scr-1778591907544': '発注書作成画面',
-            'scr-1778591920866': '発注送信処理',
-            'scr-1778591931504': '発注量計算処理',
-            'scr-1778591945891': '在庫照会画面',
-            'scr-1778591960771': '発注実行画面',
-            'scr-1778591974844': '予測精度監視画面',
-            'scr-1778591984641': 'モデル設定画面',
-            'scr-1778591999045': 'モデルテスト機能',
-            'scr-1778592013288': 'モデル本番適用処理'
-        };
+        // パンくずリスト更新
+        function updateBreadcrumb(screenId) {
+            const navItem = document.querySelector(`[data-aivic-nav="${screenId}"]`);
+            const title = navItem ? navItem.textContent.replace(/^[^\s]+\s/, '') : 'ページ';
+            document.getElementById('current-page-title').textContent = title;
+        }
 
-        // showScreen 関数の拡張
+        // 画面切り替え時のイベント監視
         const originalShowScreen = window.showScreen;
         window.showScreen = function(screenId) {
+            updateBreadcrumb(screenId);
             if (originalShowScreen) {
-                originalShowScreen(screenId);
-            }
-            
-            // パンくずリストの更新
-            const titleElement = document.getElementById('current-page-title');
-            if (titleElement && screenTitles[screenId]) {
-                titleElement.textContent = screenTitles[screenId];
+                return originalShowScreen(screenId);
             }
         };
 
-        // 初期画面設定
+        // 初期表示
         document.addEventListener('DOMContentLoaded', function() {
-            // デフォルトでダッシュボードを表示
             setTimeout(() => {
-                if (typeof window.showScreen === 'function') {
-                    window.showScreen('scr-1778591780173');
-                }
+                showScreen('scr-1778591780173');
             }, 100);
         });
     </script>
