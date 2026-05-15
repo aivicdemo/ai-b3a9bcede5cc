@@ -1,10 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI需要予測・発注管理システム</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script>
         <script>
 window.AIVIC_API_URL = "https://mkwmoife37uqyv4zhy4yhweozq0oddxn.lambda-url.us-east-1.on.aws/";
@@ -17,24 +16,20 @@ window.AIVIC_PRESET_SEED = {};
     </script>
     <style>
         :root {
-            --primary: #00d4ff;
-            --primary-hover: #00b8e6;
-            --primary-dark: #0099cc;
-            --success: #00ff88;
-            --warning: #ffaa00;
-            --danger: #ff4444;
+            --primary: #4a9eff;
+            --primary-hover: #3d8ae6;
             --bg-main: #0f0f0f;
             --bg-card: #1a1a1a;
-            --bg-sidebar: #161616;
-            --bg-header: #141414;
-            --border: #333333;
-            --border-light: #2a2a2a;
+            --bg-sidebar: #141414;
+            --border: #2a2a2a;
             --text: #e8e8e8;
             --text-muted: #a0a0a0;
-            --text-dim: #666666;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            --radius: 8px;
-            --transition: all 0.2s ease;
+            --top-bar-bg: #161616;
+            --top-bar-border: #2d2d2d;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #06b6d4;
         }
 
         * {
@@ -44,93 +39,25 @@ window.AIVIC_PRESET_SEED = {};
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg-main);
             color: var(--text);
-            line-height: 1.6;
-            overflow-x: hidden;
+            height: 100vh;
+            overflow: hidden;
         }
 
         .app-container {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            grid-template-rows: 60px 1fr;
-            grid-template-areas: 
-                "sidebar header"
-                "sidebar main";
+            display: flex;
             height: 100vh;
         }
 
-        .app-header {
-            grid-area: header;
-            background: var(--bg-header);
-            border-bottom: 1px solid var(--border-light);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 24px;
-            box-shadow: var(--shadow);
-            z-index: 100;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .breadcrumb {
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-
-        .breadcrumb .current {
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .system-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-        }
-
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--success);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            border-radius: var(--radius);
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-        }
-
         .sidebar {
-            grid-area: sidebar;
+            width: 280px;
             background: var(--bg-sidebar);
-            border-right: 1px solid var(--border-light);
-            overflow-y: auto;
-            box-shadow: var(--shadow);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
         }
 
         .sidebar-header {
@@ -143,141 +70,169 @@ window.AIVIC_PRESET_SEED = {};
             align-items: center;
             gap: 12px;
             font-size: 18px;
-            font-weight: 700;
+            font-weight: 600;
             color: var(--primary);
         }
 
-        .logo i {
-            font-size: 24px;
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+            color: white;
         }
 
         .nav-section {
-            padding: 20px 0;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
         }
 
         .nav-section-title {
             padding: 0 20px 12px;
             font-size: 12px;
             font-weight: 600;
-            color: var(--text-dim);
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            display: block;
             padding: 12px 20px;
-            color: var(--text-muted);
+            color: var(--text);
             text-decoration: none;
-            transition: var(--transition);
-            cursor: pointer;
+            font-size: 14px;
             border: none;
             background: none;
             width: 100%;
             text-align: left;
-            font-size: 14px;
-        }
-
-        .nav-item:hover {
-            background: rgba(0, 212, 255, 0.1);
-            color: var(--text);
-        }
-
-        .nav-item.aivic-active {
-            background: linear-gradient(90deg, var(--primary) 0%, transparent 100%);
-            color: var(--text);
-            border-right: 3px solid var(--primary);
-        }
-
-        .nav-item i {
-            width: 20px;
-            text-align: center;
-            font-size: 16px;
-        }
-
-        .main-content {
-            grid-area: main;
-            overflow-y: auto;
-            background: var(--bg-main);
+            cursor: pointer;
+            transition: all 0.2s ease;
             position: relative;
         }
 
-        .panel-container {
-            padding: 24px;
-            min-height: calc(100vh - 60px);
+        .nav-item:hover {
+            background: rgba(74, 158, 255, 0.1);
+            color: var(--primary);
         }
 
-        .quick-stats {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 16px;
-            box-shadow: var(--shadow);
+        .nav-item.aivic-active {
+            background: rgba(74, 158, 255, 0.15);
+            color: var(--primary);
+            border-right: 3px solid var(--primary);
+        }
+
+        .nav-item.aivic-active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--primary);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .top-bar {
+            height: 64px;
+            background: var(--top-bar-bg);
+            border-bottom: 1px solid var(--top-bar-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .breadcrumb-current {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             font-size: 12px;
             color: var(--text-muted);
-            z-index: 50;
         }
 
-        .quick-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            min-width: 200px;
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
         }
 
-        .stat-item {
-            text-align: center;
+        .content-area {
+            flex: 1;
+            overflow: auto;
+            padding: 24px;
+            background: var(--bg-main);
         }
 
-        .stat-value {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--primary);
-            display: block;
-        }
-
-        .sidebar-toggle {
-            display: none;
+        .panel-container {
+            height: 100%;
             background: var(--bg-card);
+            border-radius: 8px;
             border: 1px solid var(--border);
-            color: var(--text);
-            padding: 8px;
-            border-radius: var(--radius);
-            cursor: pointer;
+            overflow: hidden;
         }
 
-        @media (max-width: 1024px) {
-            .app-container {
-                grid-template-columns: 1fr;
-                grid-template-areas: 
-                    "header"
-                    "main";
-            }
+        .mobile-nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+        }
 
+        @media (max-width: 768px) {
             .sidebar {
                 position: fixed;
-                left: -280px;
+                left: 0;
                 top: 0;
                 height: 100vh;
-                z-index: 200;
-                transition: var(--transition);
+                z-index: 1000;
+                transform: translateX(-100%);
             }
 
             .sidebar.open {
-                left: 0;
+                transform: translateX(0);
             }
 
-            .sidebar-toggle {
+            .mobile-nav-toggle {
                 display: block;
             }
 
-            .quick-stats {
-                display: none;
+            .content-area {
+                padding: 16px;
             }
         }
 
@@ -289,240 +244,162 @@ window.AIVIC_PRESET_SEED = {};
             right: 0;
             bottom: 0;
             background: rgba(0, 0, 0, 0.5);
-            z-index: 150;
+            z-index: 999;
         }
 
         .overlay.show {
             display: block;
         }
 
-        .nav-divider {
-            height: 1px;
-            background: var(--border);
-            margin: 12px 20px;
+        .nav-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 12px;
+            opacity: 0.7;
+            display: inline-block;
         }
 
-        .nav-item.critical {
-            position: relative;
-        }
-
-        .nav-item.critical::after {
-            content: '';
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 6px;
-            height: 6px;
-            background: var(--warning);
-            border-radius: 50%;
+        .nav-item:hover .nav-icon,
+        .nav-item.aivic-active .nav-icon {
+            opacity: 1;
         }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <header class="app-header">
-            <div class="header-left">
-                <button class="sidebar-toggle" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="breadcrumb">
-                    AI需要予測・発注管理システム / <span class="current" id="current-page">ダッシュボード</span>
-                </div>
-            </div>
-            <div class="header-right">
-                <div class="system-status">
-                    <div class="status-indicator"></div>
-                    <span>システム稼働中</span>
-                </div>
-                <div class="user-info">
-                    <i class="fas fa-user-circle"></i>
-                    <span>管理者</span>
-                </div>
-            </div>
-        </header>
-
         <nav class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
-                    <i class="fas fa-brain"></i>
-                    <span>AI予測システム</span>
+                    <div class="logo-icon">AI</div>
+                    <span>需要予測システム</span>
                 </div>
             </div>
 
             <div class="nav-section">
-                <div class="nav-section-title">メインダッシュボード</div>
-                <button class="nav-item aivic-active" data-aivic-nav="scr-1778591780173" onclick="showScreen('scr-1778591780173')">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <span>ダッシュボード</span>
+                <div class="nav-section-title">概要・監視</div>
+                <button class="nav-item" data-aivic-nav="scr-1778591780173" onclick="showScreen('scr-1778591780173')">
+                    <span class="nav-icon">📊</span>ダッシュボード
+                </button>
+                <button class="nav-item" data-aivic-nav="scr-1778591974844" onclick="showScreen('scr-1778591974844')">
+                    <span class="nav-icon">📈</span>予測精度監視画面
                 </button>
             </div>
 
             <div class="nav-section">
                 <div class="nav-section-title">データ管理</div>
                 <button class="nav-item" data-aivic-nav="scr-1778591797884" onclick="showScreen('scr-1778591797884')">
-                    <i class="fas fa-chart-line"></i>
-                    <span>売上実績データ管理</span>
+                    <span class="nav-icon">💰</span>売上実績データ管理
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778591810814" onclick="showScreen('scr-1778591810814')">
-                    <i class="fas fa-cloud-sun"></i>
-                    <span>外部要因データ管理</span>
+                    <span class="nav-icon">🌤️</span>外部要因データ管理
                 </button>
-                <button class="nav-item" data-aivic-nav="scr-1778591864631" onclick="showScreen('scr-1778591864631')">
-                    <i class="fas fa-database"></i>
-                    <span>データ収集ログ管理</span>
+                <button class="nav-item" data-aivic-nav="scr-1778591945891" onclick="showScreen('scr-1778591945891')">
+                    <span class="nav-icon">📦</span>在庫照会画面
                 </button>
             </div>
 
             <div class="nav-section">
                 <div class="nav-section-title">分析・予測</div>
                 <button class="nav-item" data-aivic-nav="scr-1778591822586" onclick="showScreen('scr-1778591822586')">
-                    <i class="fas fa-project-diagram"></i>
-                    <span>相関分析・比較分析</span>
+                    <span class="nav-icon">📊</span>相関分析・比較分析
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778591838939" onclick="showScreen('scr-1778591838939')">
-                    <i class="fas fa-crystal-ball"></i>
-                    <span>需要予測管理</span>
+                    <span class="nav-icon">🤖</span>需要予測管理
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778591885672" onclick="showScreen('scr-1778591885672')">
-                    <i class="fas fa-cogs"></i>
-                    <span>AI需要予測処理</span>
-                </button>
-                <button class="nav-item critical" data-aivic-nav="scr-1778591974844" onclick="showScreen('scr-1778591974844')">
-                    <i class="fas fa-search"></i>
-                    <span>予測精度監視画面</span>
+                    <span class="nav-icon">⚙️</span>AI需要予測処理
                 </button>
             </div>
 
             <div class="nav-section">
                 <div class="nav-section-title">発注業務</div>
                 <button class="nav-item" data-aivic-nav="scr-1778591852463" onclick="showScreen('scr-1778591852463')">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>発注管理</span>
+                    <span class="nav-icon">📋</span>発注管理
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778591896813" onclick="showScreen('scr-1778591896813')">
-                    <i class="fas fa-calculator"></i>
-                    <span>発注量計算画面</span>
+                    <span class="nav-icon">🧮</span>発注量計算画面
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778591907544" onclick="showScreen('scr-1778591907544')">
-                    <i class="fas fa-file-invoice"></i>
-                    <span>発注書作成画面</span>
-                </button>
-                <button class="nav-item" data-aivic-nav="scr-1778591920866" onclick="showScreen('scr-1778591920866')">
-                    <i class="fas fa-paper-plane"></i>
-                    <span>発注送信処理</span>
-                </button>
-                <button class="nav-item" data-aivic-nav="scr-1778591931504" onclick="showScreen('scr-1778591931504')">
-                    <i class="fas fa-microchip"></i>
-                    <span>発注量計算処理</span>
+                    <span class="nav-icon">📄</span>発注書作成画面
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778591960771" onclick="showScreen('scr-1778591960771')">
-                    <i class="fas fa-play-circle"></i>
-                    <span>発注実行画面</span>
+                    <span class="nav-icon">✅</span>発注実行画面
+                </button>
+                <button class="nav-item" data-aivic-nav="scr-1778591920866" onclick="showScreen('scr-1778591920866')">
+                    <span class="nav-icon">📤</span>発注送信処理
+                </button>
+                <button class="nav-item" data-aivic-nav="scr-1778591931504" onclick="showScreen('scr-1778591931504')">
+                    <span class="nav-icon">⚡</span>発注量計算処理
                 </button>
             </div>
 
             <div class="nav-section">
-                <div class="nav-section-title">在庫・モデル管理</div>
-                <button class="nav-item" data-aivic-nav="scr-1778591945891" onclick="showScreen('scr-1778591945891')">
-                    <i class="fas fa-boxes"></i>
-                    <span>在庫照会画面</span>
-                </button>
+                <div class="nav-section-title">AI モデル管理</div>
                 <button class="nav-item" data-aivic-nav="scr-1778591984641" onclick="showScreen('scr-1778591984641')">
-                    <i class="fas fa-sliders-h"></i>
-                    <span>モデル設定画面</span>
+                    <span class="nav-icon">⚙️</span>モデル設定画面
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778591999045" onclick="showScreen('scr-1778591999045')">
-                    <i class="fas fa-vial"></i>
-                    <span>モデルテスト機能</span>
+                    <span class="nav-icon">🧪</span>モデルテスト機能
                 </button>
                 <button class="nav-item" data-aivic-nav="scr-1778592013288" onclick="showScreen('scr-1778592013288')">
-                    <i class="fas fa-rocket"></i>
-                    <span>モデル本番適用処理</span>
+                    <span class="nav-icon">🚀</span>モデル本番適用処理
                 </button>
             </div>
-
-            <div class="nav-divider"></div>
 
             <div class="nav-section">
                 <div class="nav-section-title">システム管理</div>
+                <button class="nav-item" data-aivic-nav="scr-1778591864631" onclick="showScreen('scr-1778591864631')">
+                    <span class="nav-icon">📝</span>データ収集ログ管理
+                </button>
                 <button class="nav-item" data-aivic-nav="scr-1778591875396" onclick="showScreen('scr-1778591875396')">
-                    <i class="fas fa-history"></i>
-                    <span>システム操作履歴管理</span>
+                    <span class="nav-icon">👤</span>システム操作履歴管理
                 </button>
             </div>
         </nav>
 
         <main class="main-content">
-            <div class="panel-container">
-                <div data-aivic-panel="scr-1778591780173"></div>
-                <div data-aivic-panel="scr-1778591797884"></div>
-                <div data-aivic-panel="scr-1778591810814"></div>
-                <div data-aivic-panel="scr-1778591822586"></div>
-                <div data-aivic-panel="scr-1778591838939"></div>
-                <div data-aivic-panel="scr-1778591852463"></div>
-                <div data-aivic-panel="scr-1778591864631"></div>
-                <div data-aivic-panel="scr-1778591875396"></div>
-                <div data-aivic-panel="scr-1778591885672"></div>
-                <div data-aivic-panel="scr-1778591896813"></div>
-                <div data-aivic-panel="scr-1778591907544"></div>
-                <div data-aivic-panel="scr-1778591920866"></div>
-                <div data-aivic-panel="scr-1778591931504"></div>
-                <div data-aivic-panel="scr-1778591945891"></div>
-                <div data-aivic-panel="scr-1778591960771"></div>
-                <div data-aivic-panel="scr-1778591974844"></div>
-                <div data-aivic-panel="scr-1778591984641"></div>
-                <div data-aivic-panel="scr-1778591999045"></div>
-                <div data-aivic-panel="scr-1778592013288"></div>
+            <header class="top-bar">
+                <div class="breadcrumb">
+                    <button class="mobile-nav-toggle" onclick="toggleMobileNav()">☰</button>
+                    <span>AI需要予測・発注管理システム</span>
+                    <span>/</span>
+                    <span class="breadcrumb-current" id="current-screen-name">ダッシュボード</span>
+                </div>
+                <div class="top-bar-actions">
+                    <div class="status-indicator">
+                        <div class="status-dot"></div>
+                        <span>システム正常</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div data-aivic-panel="scr-1778591780173" class="panel-container"></div>
+                <div data-aivic-panel="scr-1778591797884" class="panel-container"></div>
+                <div data-aivic-panel="scr-1778591810814" class="panel-container"></div>
+                <div data-aivic-panel="scr-1778591822586" class="panel-container"></div>
+                <div data-aivic-panel="scr-1778591838939" class="panel-container"></div>
+                <div data-aivic-panel="scr-1778591852463" class="panel-container"></div>
+                <div data-aivic-panel="scr-1778591864631" class="panel-container"></div>
+                <div data-aivic-panel="scr-1778591875396" class="panel-container"></div>
+                <div data-aivic-panel="scr-1778591885672" class="panel-container"></div>
+                <div data-aivic-panel="scr-1778591896813" class="panel-container"></div>
+                <div data-aivic-panel="scr-1778591907544" class="panel-container"></div>
+                <div data-aivic-panel="scr-1778591920866" class="panel-container"></div>
+                <div data-aivic-panel="scr-1778591931504" class="panel-container"></div>
+                <div data-aivic-panel="scr-1778591945891" class="panel-container"></div>
+                <div data-aivic-panel="scr-1778591960771" class="panel-container"></div>
+                <div data-aivic-panel="scr-1778591974844" class="panel-container"></div>
+                <div data-aivic-panel="scr-1778591984641" class="panel-container"></div>
+                <div data-aivic-panel="scr-1778591999045" class="panel-container"></div>
+                <div data-aivic-panel="scr-1778592013288" class="panel-container"></div>
             </div>
         </main>
     </div>
 
-    <div class="quick-stats">
-        <div class="quick-stats-grid">
-            <div class="stat-item">
-                <span class="stat-value">98.2%</span>
-                <span>予測精度</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-value">24</span>
-                <span>処理中</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-value">1.2M</span>
-                <span>データ件数</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-value">0.8s</span>
-                <span>応答時間</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+    <div class="overlay" id="overlay" onclick="toggleMobileNav()"></div>
 
     <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('show');
-        }
-
-        function closeSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            sidebar.classList.remove('open');
-            overlay.classList.remove('show');
-        }
-
-        window.updateBreadcrumb = function(screenName) {
-            const currentPage = document.getElementById('current-page');
-            if (currentPage) {
-                currentPage.textContent = screenName;
-            }
-        };
-
         const screenNames = {
             'scr-1778591780173': 'ダッシュボード',
             'scr-1778591797884': '売上実績データ管理',
@@ -545,20 +422,39 @@ window.AIVIC_PRESET_SEED = {};
             'scr-1778592013288': 'モデル本番適用処理'
         };
 
+        function toggleMobileNav() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        }
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('overlay').classList.remove('show');
+            }
+        });
+
         const originalShowScreen = window.showScreen;
         window.showScreen = function(screenId) {
             if (originalShowScreen) {
                 originalShowScreen(screenId);
             }
             
-            if (screenNames[screenId]) {
-                updateBreadcrumb(screenNames[screenId]);
-            }
+            const screenName = screenNames[screenId] || 'Unknown Screen';
+            document.getElementById('current-screen-name').textContent = screenName;
             
-            if (window.innerWidth <= 1024) {
-                closeSidebar();
+            if (window.innerWidth <= 768) {
+                toggleMobileNav();
             }
         };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof window.showScreen === 'function') {
+                window.showScreen('scr-1778591780173');
+            }
+        });
     </script>
 
     <script>
