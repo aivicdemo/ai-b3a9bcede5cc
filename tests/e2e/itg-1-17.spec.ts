@@ -1,242 +1,195 @@
 import { test, expect } from '@playwright/test';
 
-const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
+const baseUrl = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
 
 test.describe("モデル設定画面", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto(`${BASE_URL}/login`);
-    await page.fill('[data-testid="username"]', 'testuser');
-    await page.fill('[data-testid="password"]', 'password');
-    await page.click('[data-testid="login-button"]');
-    await page.waitForURL('**/dashboard');
+    await page.goto(baseUrl);
   });
 
-  test('SCEN-316: 全項目入力してモデル作成', async ({ page }) => {
-    // SCEN-316
-    await page.goto(`${BASE_URL}/model-settings`);
-    await page.fill('[data-testid="model-name"]', '需要予測モデル_テスト');
-    await page.selectOption('[data-testid="product-category"]', 'food');
-    await page.fill('[data-testid="prediction-period"]', '30');
-    await page.selectOption('[data-testid="algorithm-type"]', 'machine-learning');
-    await page.selectOption('[data-testid="learning-period"]', '12months');
-    await page.fill('[data-testid="accuracy-threshold"]', '85');
-    await page.check('[data-testid="seasonal-factor"]');
-    await page.fill('[data-testid="external-factors"]', '天気,イベント');
-    await page.check('[data-testid="alert-notification"]');
+  test("SCEN-328: [normal] モデル設定画面 - 全項目入力でモデル作成完了", async ({ page }) => {
+    // SCEN-328
+    await page.goto(`${baseUrl}/model-settings`);
+    await page.fill('[data-testid="model-name-input"]', 'テストモデル001');
+    await page.selectOption('[data-testid="target-product-select"]', { index: 1 });
+    await page.fill('[data-testid="forecast-period-input"]', '30');
+    await page.selectOption('[data-testid="training-period-select"]', '過去1年');
+    await page.selectOption('[data-testid="algorithm-select"]', 'ARIMA');
+    await page.check('[data-testid="seasonal-adjustment-checkbox"]');
+    await page.fill('[data-testid="weather-factor-input"]', 'enabled');
+    await page.fill('[data-testid="accuracy-threshold-input"]', '85');
+    await page.fill('[data-testid="admin-email-input"]', 'admin@example.com');
     await page.click('[data-testid="create-model-button"]');
-    await expect(page.locator('[data-testid="success-message"]')).toContainText('モデルが正常に作成されました');
+    await expect(page.locator('[data-testid="success-message"]')).toContainText('モデルの作成が完了しました');
   });
 
-  test('SCEN-317: 既存モデルの設定変更', async ({ page }) => {
-    // SCEN-317
-    await page.goto(`${BASE_URL}/model-settings`);
-    await page.click('[data-testid="existing-model"]:first-child');
-    await page.click('[data-testid="edit-settings-button"]');
-    await page.fill('[data-testid="prediction-period"]', '60');
-    await page.selectOption('[data-testid="learning-period"]', '6months');
-    await page.fill('[data-testid="importance-parameter"]', '0.8');
+  test("SCEN-329: [normal] モデル設定画面 - 既存モデル編集で設定値更新", async ({ page }) => {
+    // SCEN-329
+    await page.goto(`${baseUrl}/model-settings`);
+    await page.click('[data-testid="model-list-item"]:first-child');
+    await page.click('[data-testid="edit-button"]');
+    await page.fill('[data-testid="model-name-input"]', '編集後モデル名');
+    await page.fill('[data-testid="forecast-period-input"]', '60');
+    await page.selectOption('[data-testid="training-period-select"]', '過去2年');
+    await page.fill('[data-testid="algorithm-parameter-input"]', '新しいパラメータ');
     await page.click('[data-testid="save-button"]');
-    await page.click('[data-testid="confirm-ok"]');
-    await expect(page.locator('[data-testid="change-complete-message"]')).toBeVisible();
+    await page.click('[data-testid="confirm-ok-button"]');
+    await expect(page.locator('[data-testid="save-complete-message"]')).toBeVisible();
   });
 
-  test('SCEN-318: 複数商品カテゴリ選択でモデル作成', async ({ page }) => {
-    // SCEN-318
-    await page.goto(`${BASE_URL}/model-settings`);
+  test("SCEN-330: [normal] モデル設定画面 - 複数データソース選択でモデル作成", async ({ page }) => {
+    // SCEN-330
+    await page.goto(`${baseUrl}/model-settings`);
     await page.click('[data-testid="new-model-button"]');
-    await page.fill('[data-testid="model-name"]', '複数カテゴリテストモデル');
-    await page.check('[data-testid="category-food"]');
-    await page.check('[data-testid="category-daily-goods"]');
-    await page.check('[data-testid="category-clothing"]');
-    await page.fill('[data-testid="prediction-period"]', '30');
-    await page.fill('[data-testid="learning-period"]', '90');
+    await page.fill('[data-testid="model-name-input"]', '複数データソーステスト');
+    await page.check('[data-testid="sales-data-checkbox"]');
+    await page.check('[data-testid="inventory-data-checkbox"]');
+    await page.check('[data-testid="weather-data-checkbox"]');
+    await page.fill('[data-testid="forecast-period-input"]', '30');
+    await page.selectOption('[data-testid="algorithm-select"]', '機械学習（自動選択）');
     await page.click('[data-testid="create-model-button"]');
-    await page.click('[data-testid="confirm-ok"]');
-    await expect(page.locator('[data-testid="model-list"] >> text=複数カテゴリテストモデル')).toBeVisible();
+    await expect(page.locator('[data-testid="model-status"]')).toContainText('作成完了');
   });
 
-  test('SCEN-319: 全データソース選択でモデル作成', async ({ page }) => {
-    // SCEN-319
-    await page.goto(`${BASE_URL}/model-settings`);
-    await page.click('[data-testid="new-model-button"]');
-    await page.fill('[data-testid="model-name"]', '全データソーステスト');
-    await page.check('[data-testid="select-all-datasources"]');
-    await page.fill('[data-testid="prediction-period"]', '3months');
-    await page.selectOption('[data-testid="learning-algorithm"]', 'auto-select');
-    await page.click('[data-testid="create-model-start-button"]');
-    await expect(page.locator('[data-testid="creation-progress"]')).toBeVisible();
-    await page.waitForSelector('[data-testid="creation-complete"]', { timeout: 60000 });
-    await expect(page.locator('[data-testid="model-list"] >> text=全データソーステスト')).toBeVisible();
-  });
-
-  test('SCEN-320: モデル名未入力で保存', async ({ page }) => {
-    // SCEN-320
-    await page.goto(`${BASE_URL}/model-settings`);
-    await page.fill('[data-testid="prediction-target"]', 'test-target');
-    await page.fill('[data-testid="learning-period"]', '30');
+  test("SCEN-331: [error] モデル設定画面 - モデル名未入力で保存エラー", async ({ page }) => {
+    // SCEN-331
+    await page.goto(`${baseUrl}/model-settings`);
+    await page.fill('[data-testid="model-name-input"]', '');
+    await page.selectOption('[data-testid="target-product-select"]', { index: 1 });
+    await page.fill('[data-testid="training-period-input"]', '365');
     await page.click('[data-testid="save-button"]');
     await expect(page.locator('[data-testid="error-message"]')).toContainText('モデル名');
   });
 
-  test('SCEN-321: 既存モデル名で重複登録', async ({ page }) => {
-    // SCEN-321
-    await page.goto(`${BASE_URL}/model-settings`);
+  test("SCEN-332: [error] モデル設定画面 - 重複モデル名で保存エラー", async ({ page }) => {
+    // SCEN-332
+    await page.goto(`${baseUrl}/model-settings`);
     await page.click('[data-testid="new-model-button"]');
-    await page.fill('[data-testid="model-name"]', '既存モデル名');
-    await page.fill('[data-testid="prediction-period"]', '30');
-    await page.fill('[data-testid="learning-data-range"]', '90');
-    await page.click('[data-testid="register-button"]');
-    await expect(page.locator('[data-testid="error-message"]')).toContainText('このモデル名は既に使用されています');
+    await page.fill('[data-testid="model-name-input"]', '季節商品予測モデル');
+    await page.fill('[data-testid="forecast-period-input"]', '30');
+    await page.click('[data-testid="save-button"]');
+    await expect(page.locator('[data-testid="error-message"]')).toContainText('重複');
   });
 
-  test('SCEN-322: 対象店舗未選択で保存', async ({ page }) => {
-    // SCEN-322
-    await page.goto(`${BASE_URL}/model-settings`);
-    await page.fill('[data-testid="model-name"]', 'テストモデル');
-    await page.fill('[data-testid="prediction-period"]', '30');
+  test("SCEN-333: [error] モデル設定画面 - 対象店舗未選択で保存エラー", async ({ page }) => {
+    // SCEN-333
+    await page.goto(`${baseUrl}/model-settings`);
+    await page.fill('[data-testid="model-name-input"]', 'テストモデル');
+    await page.fill('[data-testid="forecast-period-input"]', '30');
     await page.click('[data-testid="save-button"]');
     await expect(page.locator('[data-testid="error-message"]')).toContainText('対象店舗');
   });
 
-  test('SCEN-323: 商品カテゴリ未選択で保存', async ({ page }) => {
-    // SCEN-323
-    await page.goto(`${BASE_URL}/model-settings`);
-    await page.fill('[data-testid="model-name"]', 'テストモデル');
-    await page.fill('[data-testid="prediction-period"]', '30');
-    await page.selectOption('[data-testid="algorithm"]', 'linear-regression');
-    await page.click('[data-testid="save-button"]');
-    await expect(page.locator('[data-testid="error-message"]')).toContainText('商品カテゴリ');
-  });
-
-  test('SCEN-324: 学習期間の開始日が終了日より後', async ({ page }) => {
-    // SCEN-324
-    await page.goto(`${BASE_URL}/model-settings`);
-    await page.fill('[data-testid="learning-end-date"]', '2024-01-31');
-    await page.fill('[data-testid="learning-start-date"]', '2024-02-15');
-    await page.click('[data-testid="save-button"]');
-    await expect(page.locator('[data-testid="error-message"]')).toContainText('開始日は終了日より前の日付を設定してください');
-  });
-
-  test('SCEN-325: 学習期間が未来日', async ({ page }) => {
-    // SCEN-325
-    await page.goto(`${BASE_URL}/model-settings`);
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
-    const dayAfterTomorrow = new Date();
-    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-    const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
-    await page.fill('[data-testid="learning-start-date"]', tomorrowStr);
-    await page.fill('[data-testid="learning-end-date"]', dayAfterTomorrowStr);
-    await page.fill('[data-testid="model-name"]', 'テストモデル');
-    await page.click('[data-testid="save-button"]');
-    await expect(page.locator('[data-testid="error-message"]')).toContainText('学習期間に未来の日付は設定できません');
-  });
-
-  test('SCEN-326: データソース未選択で保存', async ({ page }) => {
-    // SCEN-326
-    await page.goto(`${BASE_URL}/model-settings`);
-    await page.fill('[data-testid="model-name"]', 'テストモデル001');
-    await page.fill('[data-testid="prediction-period"]', '30');
-    await page.selectOption('[data-testid="algorithm"]', 'neural-network');
-    await page.click('[data-testid="save-button"]');
-    await expect(page.locator('[data-testid="error-message"]')).toContainText('データソースを選択してください');
-  });
-
-  test('SCEN-327: アルゴリズム未選択で保存', async ({ page }) => {
-    // SCEN-327
-    await page.goto(`${BASE_URL}/model-settings`);
-    await page.fill('[data-testid="model-name"]', 'テストモデル');
-    await page.click('[data-testid="save-button"]');
-    await expect(page.locator('[data-testid="error-message"]')).toContainText('アルゴリズム');
-  });
-
-  test('SCEN-328: モデル精度目標値が範囲外', async ({ page }) => {
-    // SCEN-328
-    await page.goto(`${BASE_URL}/model-settings`);
-    await page.fill('[data-testid="accuracy-target"]', '150');
-    await page.click('[data-testid="save-button"]');
-    await expect(page.locator('[data-testid="error-message"]')).toContainText('有効範囲外');
-  });
-
-  test('SCEN-329: 重み付け設定の合計値が100%以外', async ({ page }) => {
-    // SCEN-329
-    await page.goto(`${BASE_URL}/model-settings`);
-    await page.fill('[data-testid="weight-sales"]', '40');
-    await page.fill('[data-testid="weight-inventory"]', '30');
-    await page.fill('[data-testid="weight-season"]', '10');
-    await page.click('[data-testid="save-button"]');
-    await expect(page.locator('[data-testid="error-message"]')).toContainText('重み付けの合計値が100%');
-  });
-
-  test('SCEN-330: モデル名最大文字数入力', async ({ page }) => {
-    // SCEN-330
-    await page.goto(`${BASE_URL}/model-settings`);
-    const maxString = 'a'.repeat(255);
-    await page.fill('[data-testid="model-name"]', maxString);
-    await page.click('[data-testid="save-button"]');
-    await expect(page.locator('[data-testid="model-name-display"]')).toContainText(maxString);
-  });
-
-  test('SCEN-331: 学習期間を1日のみ設定', async ({ page }) => {
-    // SCEN-331
-    await page.goto(`${BASE_URL}/model-settings`);
-    const today = new Date().toISOString().split('T')[0];
-    await page.fill('[data-testid="learning-start-date"]', today);
-    await page.fill('[data-testid="learning-end-date"]', today);
-    await page.click('[data-testid="save-button"]');
-    await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
-  });
-
-  test('SCEN-332: 学習期間を最大範囲設定', async ({ page }) => {
-    // SCEN-332
-    await page.goto(`${BASE_URL}/model-settings`);
-    await page.fill('[data-testid="learning-start-date"]', '2020-01-01');
-    await page.fill('[data-testid="learning-end-date"]', '2024-12-31');
-    await page.click('[data-testid="save-button"]');
-    await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
-  });
-
-  test('SCEN-333: 学習率を最小値設定', async ({ page }) => {
-    // SCEN-333
-    await page.goto(`${BASE_URL}/model-settings`);
-    await page.fill('[data-testid="learning-rate"]', '0.00001');
-    await page.click('[data-testid="save-button"]');
-    await page.click('[data-testid="confirm-ok"]');
-    await expect(page.locator('[data-testid="save-complete-message"]')).toBeVisible();
-    await expect(page.locator('[data-testid="learning-rate"]')).toHaveValue('0.00001');
-  });
-
-  test('SCEN-334: 学習率を最大値設定', async ({ page }) => {
+  test("SCEN-334: [error] モデル設定画面 - 商品カテゴリ未選択で保存エラー", async ({ page }) => {
     // SCEN-334
-    await page.goto(`${BASE_URL}/model-settings`);
-    await page.fill('[data-testid="learning-rate"]', '1.0');
+    await page.goto(`${baseUrl}/model-settings`);
+    await page.fill('[data-testid="model-name-input"]', 'テストモデル001');
+    await page.fill('[data-testid="forecast-period-input"]', '30');
     await page.click('[data-testid="save-button"]');
-    await expect(page.locator('[data-testid="save-complete-message"]')).toBeVisible();
-    await expect(page.locator('[data-testid="learning-rate"]')).toHaveValue('1.0');
+    await expect(page.locator('[data-testid="error-message"]')).toContainText('商品カテゴリを選択してください');
   });
 
-  test('SCEN-335: 精度目標値を0%設定', async ({ page }) => {
+  test("SCEN-335: [error] モデル設定画面 - 学習期間未来日付で入力エラー", async ({ page }) => {
     // SCEN-335
-    await page.goto(`${BASE_URL}/model-settings`);
-    await page.fill('[data-testid="accuracy-target"]', '0');
+    await page.goto(`${baseUrl}/model-settings`);
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + 30);
+    const futureDateString = futureDate.toISOString().split('T')[0];
+    await page.fill('[data-testid="training-start-date"]', futureDateString);
+    await page.fill('[data-testid="training-end-date"]', futureDateString);
     await page.click('[data-testid="save-button"]');
-    await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
+    await expect(page.locator('[data-testid="error-message"]')).toContainText('未来の日付は設定できません');
   });
 
-  test('SCEN-336: 精度目標値を100%設定', async ({ page }) => {
+  test("SCEN-336: [error] モデル設定画面 - 学習期間開始終了逆転で入力エラー", async ({ page }) => {
     // SCEN-336
-    await page.goto(`${BASE_URL}/model-settings`);
-    await page.fill('[data-testid="accuracy-target"]', '100');
+    await page.goto(`${baseUrl}/model-settings`);
+    await page.fill('[data-testid="training-end-date"]', '2024-01-01');
+    await page.fill('[data-testid="training-start-date"]', '2024-12-31');
+    await page.click('[data-testid="save-button"]');
+    await expect(page.locator('[data-testid="error-message"]')).toContainText('開始日');
+  });
+
+  test("SCEN-337: [error] モデル設定画面 - データソース未選択で保存エラー", async ({ page }) => {
+    // SCEN-337
+    await page.goto(`${baseUrl}/model-settings`);
+    await page.fill('[data-testid="model-name-input"]', 'テストモデル');
+    await page.click('[data-testid="save-button"]');
+    await expect(page.locator('[data-testid="error-message"]')).toContainText('データソース');
+  });
+
+  test("SCEN-338: [error] モデル設定画面 - モデル精度目標値範囲外で入力エラー", async ({ page }) => {
+    // SCEN-338
+    await page.goto(`${baseUrl}/model-settings`);
+    await page.fill('[data-testid="accuracy-target-input"]', '-10');
+    await page.click('[data-testid="save-button"]');
+    await expect(page.locator('[data-testid="error-message"]')).toContainText('0%から100%の範囲');
+  });
+
+  test("SCEN-339: [edge] モデル設定画面 - モデル名最大文字数入力", async ({ page }) => {
+    // SCEN-339
+    await page.goto(`${baseUrl}/model-settings`);
+    await page.click('[data-testid="new-model-button"]');
+    const maxLengthString = 'a'.repeat(255);
+    await page.fill('[data-testid="model-name-input"]', maxLengthString);
+    await page.click('[data-testid="save-button"]');
+    await expect(page.locator('[data-testid="model-list"]')).toContainText(maxLengthString);
+  });
+
+  test("SCEN-340: [edge] モデル設定画面 - 学習率最小値設定", async ({ page }) => {
+    // SCEN-340
+    await page.goto(`${baseUrl}/model-settings`);
+    await page.fill('[data-testid="learning-rate-input"]', '0.0001');
+    await page.click('[data-testid="save-button"]');
+    await page.fill('[data-testid="learning-rate-input"]', '-0.1');
+    await page.click('[data-testid="save-button"]');
+    await expect(page.locator('[data-testid="error-message"]')).toContainText('バリデーション');
+  });
+
+  test("SCEN-341: [edge] モデル設定画面 - 学習率最大値設定", async ({ page }) => {
+    // SCEN-341
+    await page.goto(`${baseUrl}/model-settings`);
+    await page.fill('[data-testid="learning-rate-input"]', '1.0');
     await page.click('[data-testid="save-button"]');
     await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
   });
 
-  test('SCEN-337: 季節性パラメータに数値以外入力', async ({ page }) => {
-    // SCEN-337
-    await page.goto(`${BASE_URL}/model-settings`);
-    await page.fill('[data-testid="seasonal-parameter"]', 'abc');
+  test("SCEN-342: [edge] モデル設定画面 - 学習期間最短1日設定", async ({ page }) => {
+    // SCEN-342
+    await page.goto(`${baseUrl}/model-settings`);
+    await page.fill('[data-testid="training-period-input"]', '1');
+    await page.selectOption('[data-testid="period-unit-select"]', '日');
     await page.click('[data-testid="save-button"]');
-    await expect(page.locator('[data-testid="error-message"]')).toContainText('数値');
+    await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
+  });
+
+  test("SCEN-343: [edge] モデル設定画面 - 全商品カテゴリ選択", async ({ page }) => {
+    // SCEN-343
+    await page.goto(`${baseUrl}/model-settings`);
+    await page.check('[data-testid="select-all-categories"]');
+    await expect(page.locator('[data-testid="category-checkbox"]')).toBeChecked();
+    await page.uncheck('[data-testid="select-all-categories"]');
+    await expect(page.locator('[data-testid="category-checkbox"]')).not.toBeChecked();
+    await page.check('[data-testid="select-all-categories"]');
+    await page.click('[data-testid="save-button"]');
+    await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
+  });
+
+  test("SCEN-344: [edge] モデル設定画面 - 全データソース選択", async ({ page }) => {
+    // SCEN-344
+    await page.goto(`${baseUrl}/model-settings`);
+    await page.click('[data-testid="select-all-datasources"]');
+    await expect(page.locator('[data-testid="datasource-count"]')).toBeVisible();
+    await page.click('[data-testid="save-button"]');
+    await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
+  });
+
+  test("SCEN-345: [edge] モデル設定画面 - モデル精度目標値上限設定", async ({ page }) => {
+    // SCEN-345
+    await page.goto(`${baseUrl}/model-settings`);
+    await page.fill('[data-testid="accuracy-target-input"]', '100');
+    await page.fill('[data-testid="accuracy-target-input"]', '101');
+    await page.click('[data-testid="save-button"]');
+    await expect(page.locator('[data-testid="error-message"]')).toContainText('バリデーション');
   });
 });

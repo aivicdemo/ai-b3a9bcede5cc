@@ -1,254 +1,146 @@
 import { test, expect } from '@playwright/test';
 
 test.describe("発注量計算処理", () => {
-  const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
-
   test.beforeEach(async ({ page }) => {
-    await page.goto(`${BASE_URL}/login`);
-    await page.fill('#username', 'testuser');
-    await page.fill('#password', 'testpass');
-    await page.click('#login-button');
-    await page.waitForURL('**/dashboard');
+    await page.goto(process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000");
   });
 
-  test('SCEN-244: 全項目入力で発注量計算が成功する', async ({ page }) => {
-    // SCEN-244
-    await page.goto(`${BASE_URL}/order-calculation`);
-    await page.fill('#product-code', 'P001');
-    await page.fill('#current-stock', '100');
-    await page.fill('#safety-stock', '20');
-    await page.fill('#lead-time', '7');
-    await page.selectOption('#forecast-period', '30');
-    await page.selectOption('#order-policy', 'periodic');
-    await page.fill('#order-unit', '50');
-    await page.click('#calculate-button');
-    
-    await expect(page.locator('#order-quantity')).toBeVisible();
-    await expect(page.locator('#order-timing')).toBeVisible();
-    await expect(page.locator('#stock-chart')).toBeVisible();
-    await expect(page.locator('.error-message')).not.toBeVisible();
+  test("SCEN-260: 全項目正常入力で発注量計算実行", async ({ page }) => {
+    // SCEN-260
+    await page.fill('input[placeholder="商品コードを入力"]', 'PRD001');
+    await page.fill('input[placeholder="現在在庫数"]', '100');
+    await page.fill('input[placeholder="予測需要量"]', '50');
+    await page.fill('input[placeholder="安全在庫数"]', '20');
+    await page.fill('input[placeholder="発注サイクル（日数）"]', '7');
+    await page.fill('input[placeholder="リードタイム（日数）"]', '3');
+    await page.click('button:has-text("計算実行")');
+    await expect(page.locator('.calculation-result')).toBeVisible();
   });
 
-  test('SCEN-245: 複数店舗での発注量計算結果が正しく表示される', async ({ page }) => {
-    // SCEN-245
-    await page.goto(`${BASE_URL}/order-management`);
-    await page.check('#store-001');
-    await page.check('#store-002');
-    await page.check('#store-003');
-    await page.selectOption('#product-category', 'food');
-    await page.fill('#order-period-start', '2024-01-01');
-    await page.fill('#order-period-end', '2024-01-31');
-    await page.click('#execute-calculation');
-    await page.waitForSelector('#calculation-results');
-    
-    await expect(page.locator('#store-001-result')).toBeVisible();
-    await expect(page.locator('#store-002-result')).toBeVisible();
-    await expect(page.locator('#store-003-result')).toBeVisible();
-    await expect(page.locator('.calculation-error')).not.toBeVisible();
+  test("SCEN-261: 複数店舗選択で一括計算", async ({ page }) => {
+    // SCEN-261
+    await page.check('input[type="checkbox"][value="store1"]');
+    await page.check('input[type="checkbox"][value="store2"]');
+    await page.check('input[type="checkbox"][value="store3"]');
+    await page.fill('input[placeholder="開始日"]', '2024-01-01');
+    await page.fill('input[placeholder="終了日"]', '2024-01-31');
+    await page.selectOption('select[name="category"]', 'category1');
+    await page.click('button:has-text("一括計算")');
+    await expect(page.locator('.result-list')).toBeVisible();
   });
 
-  test('SCEN-246: 異なる商品カテゴリで計算結果が切り替わる', async ({ page }) => {
-    // SCEN-246
-    await page.goto(`${BASE_URL}/order-management`);
-    
-    await page.selectOption('#product-category', 'food');
-    await page.click('#calculate-order');
-    const foodResult = await page.textContent('#order-result');
-    
-    await page.selectOption('#product-category', 'daily-goods');
-    await page.click('#calculate-order');
-    const dailyResult = await page.textContent('#order-result');
-    
-    await page.selectOption('#product-category', 'clothing');
-    await page.click('#calculate-order');
-    const clothingResult = await page.textContent('#order-result');
-    
-    expect(foodResult).not.toEqual(dailyResult);
-    expect(dailyResult).not.toEqual(clothingResult);
-    expect(foodResult).not.toEqual(clothingResult);
+  test("SCEN-262: 計算結果から発注データ生成", async ({ page }) => {
+    // SCEN-262
+    await page.click('button:has-text("発注量計算処理")');
+    await expect(page.locator('.calculation-result')).toBeVisible();
+    await page.click('button:has-text("発注データ生成")');
+    await page.click('button:has-text("実行")');
+    await expect(page.locator('.success-message')).toBeVisible();
+    await expect(page.locator('.order-data-list')).toBeVisible();
   });
 
-  test('SCEN-247: 計算結果一覧から商品詳細が確認できる', async ({ page }) => {
-    // SCEN-247
-    await page.goto(`${BASE_URL}/order-calculation`);
-    await page.click('#show-results-list');
-    await page.click('.product-link').first();
-    
-    await expect(page.locator('#product-detail')).toBeVisible();
-    await expect(page.locator('#product-name')).toBeVisible();
-    await expect(page.locator('#product-code')).toBeVisible();
-    await expect(page.locator('#stock-info')).toBeVisible();
-    await expect(page.locator('#order-history')).toBeVisible();
-    await expect(page.locator('#forecast-data')).toBeVisible();
-  });
-
-  test('SCEN-248: 店舗未選択で計算実行時エラー表示', async ({ page }) => {
-    // SCEN-248
-    await page.goto(`${BASE_URL}/order-calculation`);
-    await page.selectOption('#product', 'P001');
-    await page.fill('#period-start', '2024-01-01');
-    await page.fill('#period-end', '2024-01-31');
-    await page.click('#calculate-button');
-    
+  test("SCEN-263: 店舗未選択で計算実行エラー", async ({ page }) => {
+    // SCEN-263
+    await page.selectOption('select[name="category"]', 'category1');
+    await page.fill('input[placeholder="開始日"]', '2024-01-01');
+    await page.fill('input[placeholder="終了日"]', '2024-01-31');
+    await page.click('button:has-text("計算実行")');
     await expect(page.locator('.error-message')).toContainText('店舗を選択してください');
   });
 
-  test('SCEN-249: 商品カテゴリ未選択で計算実行時エラー表示', async ({ page }) => {
-    // SCEN-249
-    await page.goto(`${BASE_URL}/order-calculation`);
-    await page.selectOption('#store', 'store-001');
-    await page.fill('#period-start', '2024-01-01');
-    await page.fill('#period-end', '2024-01-31');
-    await page.click('#calculate-button');
-    
+  test("SCEN-264: 商品カテゴリ未選択でエラー", async ({ page }) => {
+    // SCEN-264
+    await page.check('input[type="checkbox"][value="store1"]');
+    await page.fill('input[placeholder="開始日"]', '2024-01-01');
+    await page.fill('input[placeholder="終了日"]', '2024-01-31');
+    await page.click('button:has-text("計算実行")');
     await expect(page.locator('.error-message')).toContainText('商品カテゴリを選択してください');
   });
 
-  test('SCEN-250: 計算対象期間未設定で計算実行時エラー表示', async ({ page }) => {
-    // SCEN-250
-    await page.goto(`${BASE_URL}/order-calculation`);
-    await page.selectOption('#product', 'P001');
-    await page.selectOption('#store', 'store-001');
-    await page.click('#calculate-button');
-    
+  test("SCEN-265: 計算対象期間未設定でエラー", async ({ page }) => {
+    // SCEN-265
+    await page.selectOption('select[name="category"]', 'category1');
+    await page.check('input[type="checkbox"][value="store1"]');
+    await page.click('button:has-text("計算実行")');
     await expect(page.locator('.error-message')).toContainText('計算対象期間を設定してください');
   });
 
-  test('SCEN-251: 安全在庫数に負の値入力でエラー表示', async ({ page }) => {
-    // SCEN-251
-    await page.goto(`${BASE_URL}/order-calculation`);
-    await page.fill('#product-code', 'P001');
-    await page.fill('#current-stock', '100');
-    await page.fill('#forecast-demand', '50');
-    await page.fill('#safety-stock', '-10');
-    await page.click('#calculate-button');
-    
+  test("SCEN-266: 安全在庫数に負の値入力でエラー", async ({ page }) => {
+    // SCEN-266
+    await page.fill('input[placeholder="商品コードを入力"]', 'PRD001');
+    await page.fill('input[placeholder="安全在庫数"]', '-10');
+    await page.click('button:has-text("計算実行")');
     await expect(page.locator('.error-message')).toContainText('安全在庫数は0以上の値を入力してください');
   });
 
-  test('SCEN-252: リードタイムに0以下入力でエラー表示', async ({ page }) => {
-    // SCEN-252
-    await page.goto(`${BASE_URL}/order-calculation`);
-    await page.selectOption('#product', 'P001');
-    await page.fill('#stock-quantity', '100');
-    await page.fill('#forecast-value', '50');
-    
-    await page.fill('#lead-time', '0');
-    await page.click('#calculate-button');
-    await expect(page.locator('.error-message')).toContainText('リードタイムは1以上の値を入力してください');
-    
-    await page.fill('#lead-time', '-1');
-    await page.click('#calculate-button');
+  test("SCEN-267: リードタイムに0入力でエラー", async ({ page }) => {
+    // SCEN-267
+    await page.fill('input[placeholder="商品コードを入力"]', 'PRD001');
+    await page.fill('input[placeholder="現在在庫数"]', '100');
+    await page.fill('input[placeholder="リードタイム（日数）"]', '0');
+    await page.click('button:has-text("計算実行")');
     await expect(page.locator('.error-message')).toContainText('リードタイムは1以上の値を入力してください');
   });
 
-  test('SCEN-253: 発注点に負の値入力でエラー表示', async ({ page }) => {
-    // SCEN-253
-    await page.goto(`${BASE_URL}/order-calculation`);
-    await page.fill('#product-info', 'P001');
-    await page.fill('#order-point', '-100');
-    await page.click('#execute-calculation');
-    
-    await expect(page.locator('.error-message')).toContainText('発注点に負の値は入力できません');
+  test("SCEN-268: 発注点に文字列入力でエラー", async ({ page }) => {
+    // SCEN-268
+    await page.fill('input[placeholder="商品コードを入力"]', 'PRD001');
+    await page.fill('input[placeholder="発注点"]', 'abc');
+    await page.click('button:has-text("計算実行")');
+    await expect(page.locator('.error-message')).toContainText('数値を入力してください');
   });
 
-  test('SCEN-254: 需要予測データ取得失敗時エラー表示', async ({ page }) => {
-    // SCEN-254
-    await page.route('**/api/forecast-data', route => route.abort());
-    await page.goto(`${BASE_URL}/order-management`);
-    await page.click('#execute-order-calculation');
-    
-    await expect(page.locator('.error-message')).toContainText('需要予測データの取得に失敗しました');
+  test("SCEN-269: 安全在庫数に最大値入力", async ({ page }) => {
+    // SCEN-269
+    await page.fill('input[placeholder="商品コードを入力"]', 'PRD001');
+    await page.fill('input[placeholder="現在在庫数"]', '100');
+    await page.fill('input[placeholder="リードタイム（日数）"]', '3');
+    await page.fill('input[placeholder="平均日次消費量"]', '10');
+    await page.fill('input[placeholder="安全在庫数"]', '999999');
+    await page.click('button:has-text("計算実行")');
+    await expect(page.locator('.calculation-result')).toBeVisible();
   });
 
-  test('SCEN-255: 在庫データ取得失敗時エラー表示', async ({ page }) => {
-    // SCEN-255
-    await page.route('**/api/stock-data', route => route.abort());
-    await page.goto(`${BASE_URL}/order-management`);
-    await page.selectOption('#product', 'P001');
-    await page.click('#execute-order-calculation');
-    
-    await expect(page.locator('.error-message')).toContainText('在庫データの取得に失敗しました');
+  test("SCEN-270: リードタイムに最大日数入力", async ({ page }) => {
+    // SCEN-270
+    await page.fill('input[placeholder="商品コードを入力"]', 'PRD001');
+    await page.fill('input[placeholder="リードタイム（日数）"]', '999');
+    await page.fill('input[placeholder="現在在庫数"]', '100');
+    await page.fill('input[placeholder="予測需要量"]', '50');
+    await page.click('button:has-text("計算実行")');
+    await expect(page.locator('.calculation-result')).toBeVisible();
   });
 
-  test('SCEN-256: 安全在庫数上限値での計算実行', async ({ page }) => {
-    // SCEN-256
-    await page.goto(`${BASE_URL}/order-calculation`);
-    await page.fill('#safety-stock', '9999');
-    await page.fill('#current-stock', '5000');
-    await page.fill('#demand-forecast', '1000');
-    await page.fill('#lead-time', '7');
-    await page.click('#execute-calculation');
-    
-    await expect(page.locator('#order-quantity')).toBeVisible();
-    await expect(page.locator('.error-message')).not.toBeVisible();
-    await expect(page.locator('#calculation-log')).toContainText('9999');
+  test("SCEN-271: 計算対象期間を1日設定", async ({ page }) => {
+    // SCEN-271
+    const today = new Date().toISOString().split('T')[0];
+    await page.fill('input[placeholder="開始日"]', today);
+    await page.fill('input[placeholder="終了日"]', today);
+    await page.selectOption('select[name="category"]', 'category1');
+    await page.check('input[type="checkbox"][value="store1"]');
+    await page.click('button:has-text("計算実行")');
+    await expect(page.locator('.calculation-result')).toBeVisible();
   });
 
-  test('SCEN-257: リードタイム上限値での計算実行', async ({ page }) => {
-    // SCEN-257
-    await page.goto(`${BASE_URL}/order-calculation`);
-    await page.selectOption('#product', 'P001');
-    await page.fill('#lead-time', '365');
-    await page.fill('#stock-quantity', '100');
-    await page.fill('#demand-data', '50');
-    await page.click('#calculate-button');
-    
-    await expect(page.locator('#calculation-result')).toBeVisible();
-    await expect(page.locator('#order-quantity')).toBeVisible();
-    await expect(page.locator('.error-message')).not.toBeVisible();
+  test("SCEN-272: 在庫0の商品で計算実行", async ({ page }) => {
+    // SCEN-272
+    await page.fill('input[placeholder="商品コードを入力"]', 'PRD002');
+    await page.fill('input[placeholder="現在在庫数"]', '0');
+    await page.fill('input[placeholder="予測需要量"]', '50');
+    await page.fill('input[placeholder="安全在庫数"]', '10');
+    await page.fill('input[placeholder="リードタイム（日数）"]', '5');
+    await page.click('button:has-text("計算実行")');
+    await expect(page.locator('.calculation-result')).toBeVisible();
   });
 
-  test('SCEN-258: 計算対象期間最短設定での実行', async ({ page }) => {
-    // SCEN-258
-    await page.goto(`${BASE_URL}/order-calculation`);
-    await page.fill('#period-days', '1');
-    await page.selectOption('#target-product', 'P001');
-    await page.click('#execute-calculation');
-    
-    await expect(page.locator('#calculation-result')).toBeVisible();
-    await expect(page.locator('#order-quantity')).toBeVisible();
-    await expect(page.locator('#data-period')).toContainText('1日');
-    await expect(page.locator('.error-message')).not.toBeVisible();
-  });
-
-  test('SCEN-259: 計算対象期間最長設定での実行', async ({ page }) => {
-    // SCEN-259
-    await page.goto(`${BASE_URL}/order-calculation`);
-    await page.fill('#calculation-period', '365');
-    await page.selectOption('#target-product', 'P001');
-    await page.selectOption('#target-store', 'store-001');
-    await page.click('#execute-button');
-    await page.waitForSelector('#calculation-complete', { timeout: 60000 });
-    
-    await expect(page.locator('#calculation-result')).toBeVisible();
-    await expect(page.locator('#order-quantity')).toBeVisible();
-    await expect(page.locator('.error-message')).not.toBeVisible();
-  });
-
-  test('SCEN-260: 在庫数0での発注量計算', async ({ page }) => {
-    // SCEN-260
-    await page.goto(`${BASE_URL}/order-management`);
-    await page.selectOption('#product-zero-stock', 'P001');
-    await page.fill('#lead-time', '7');
-    await page.fill('#safety-stock', '20');
-    await page.click('#calculate-order');
-    
-    await expect(page.locator('#order-quantity')).toBeVisible();
-    await expect(page.locator('#calculation-basis')).toBeVisible();
-    await expect(page.locator('.error-message')).not.toBeVisible();
-  });
-
-  test('SCEN-261: 予測需要量0での発注量計算', async ({ page }) => {
-    // SCEN-261
-    await page.goto(`${BASE_URL}/order-calculation`);
-    await page.selectOption('#product', 'P001');
-    await page.fill('#forecast-demand', '0');
-    await page.fill('#current-stock', '100');
-    await page.fill('#safety-stock', '50');
-    await page.click('#calculate-button');
-    
-    await expect(page.locator('#order-quantity')).toContainText('0');
-    await expect(page.locator('.error-message')).not.toBeVisible();
+  test("SCEN-273: 需要予測0の商品で計算", async ({ page }) => {
+    // SCEN-273
+    await page.fill('input[placeholder="商品コードを入力"]', 'PRD003');
+    await page.fill('input[placeholder="予測需要量"]', '0');
+    await page.fill('input[placeholder="現在在庫数"]', '100');
+    await page.fill('input[placeholder="安全在庫数"]', '20');
+    await page.fill('input[placeholder="リードタイム（日数）"]', '3');
+    await page.click('button:has-text("計算実行")');
+    await expect(page.locator('.calculation-result')).toBeVisible();
   });
 });

@@ -4,245 +4,310 @@ test.describe("システム操作履歴管理", () => {
   const baseURL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
 
   test.beforeEach(async ({ page }) => {
-    await page.goto(`${baseURL}/login`);
-    await page.fill('[name="username"]', 'admin');
-    await page.fill('[name="password"]', 'password');
-    await page.click('[type="submit"]');
+    await page.goto(baseURL);
+    await page.fill('input[name="username"]', 'admin');
+    await page.fill('input[name="password"]', 'admin123');
+    await page.click('button[type="submit"]');
     await page.waitForURL('**/dashboard');
   });
 
-  test('SCEN-144: 操作履歴一覧が正常表示される', async ({ page }) => {
-    // SCEN-144
+  test('SCEN-150: 操作履歴一覧が正常に表示される', async ({ page }) => {
+    // SCEN-150
     await page.click('text=システム管理');
     await page.click('text=操作履歴管理');
-    await expect(page.locator('[data-testid="operation-history-list"]')).toBeVisible();
-    await expect(page.locator('[data-testid="history-datetime"]').first()).toBeVisible();
-    await expect(page.locator('[data-testid="history-user"]').first()).toBeVisible();
-    await expect(page.locator('[data-testid="history-operation"]').first()).toBeVisible();
-    await expect(page.locator('[data-testid="history-target"]').first()).toBeVisible();
+    await page.waitForURL('**/system/operation-history');
+    await expect(page.locator('table')).toBeVisible();
+    await expect(page.locator('th:has-text("日時")')).toBeVisible();
+    await expect(page.locator('th:has-text("ユーザー名")')).toBeVisible();
+    await expect(page.locator('th:has-text("操作内容")')).toBeVisible();
+    await expect(page.locator('th:has-text("対象データ")')).toBeVisible();
+    await expect(page.locator('.pagination')).toBeVisible();
+    await expect(page.locator('input[placeholder="検索"]')).toBeVisible();
   });
 
-  test('SCEN-145: 日付範囲指定で履歴絞り込み', async ({ page }) => {
-    // SCEN-145
-    await page.goto(`${baseURL}/system/operation-history`);
-    await page.fill('[data-testid="start-date"]', '2024-01-01');
-    await page.fill('[data-testid="end-date"]', '2024-01-31');
-    await page.click('[data-testid="search-button"]');
-    await expect(page.locator('[data-testid="history-list"] tr')).toHaveCount({ min: 0 });
-  });
-
-  test('SCEN-146: ユーザー選択で履歴絞り込み', async ({ page }) => {
-    // SCEN-146
-    await page.goto(`${baseURL}/system/operation-history`);
-    await page.click('[data-testid="user-select"]');
-    await page.click('text=user001');
-    await page.click('[data-testid="filter-button"]');
-    await expect(page.locator('[data-testid="history-user"]')).toContainText('user001');
-    await page.click('[data-testid="user-select"]');
-    await page.click('text=user002');
-    await page.click('[data-testid="filter-button"]');
-    await page.click('[data-testid="clear-filter"]');
-  });
-
-  test('SCEN-147: 操作種別で履歴絞り込み', async ({ page }) => {
-    // SCEN-147
-    await page.goto(`${baseURL}/system/operation-history`);
-    await page.click('[data-testid="operation-type-select"]');
-    await page.click('text=データ更新');
-    await page.click('[data-testid="filter-button"]');
-    await expect(page.locator('[data-testid="operation-type-column"]')).toContainText('データ更新');
-    await page.click('[data-testid="operation-type-select"]');
-    await page.click('text=ログイン');
-    await page.click('[data-testid="filter-button"]');
-  });
-
-  test('SCEN-148: 画面名検索で履歴絞り込み', async ({ page }) => {
-    // SCEN-148
-    await page.goto(`${baseURL}/system/operation-history`);
-    await page.fill('[data-testid="screen-name-search"]', '商品マスタ管理');
-    await page.click('[data-testid="search-button"]');
-    await expect(page.locator('[data-testid="screen-name-column"]')).toContainText('商品マスタ管理');
-    await page.fill('[data-testid="screen-name-search"]', '発注管理');
-    await page.click('[data-testid="search-button"]');
-    await page.fill('[data-testid="screen-name-search"]', '管理');
-    await page.click('[data-testid="search-button"]');
-  });
-
-  test('SCEN-149: IPアドレス検索で履歴絞り込み', async ({ page }) => {
-    // SCEN-149
-    await page.goto(`${baseURL}/system/operation-history`);
-    await page.fill('[data-testid="ip-address-search"]', '192.168.1.100');
-    await page.click('[data-testid="search-button"]');
-    await page.waitForTimeout(1000);
-    const ipCells = page.locator('[data-testid="ip-address-column"]');
-    const count = await ipCells.count();
-    for (let i = 0; i < count; i++) {
-      await expect(ipCells.nth(i)).toContainText('192.168.1.100');
-    }
-  });
-
-  test('SCEN-150: 操作結果で履歴絞り込み', async ({ page }) => {
-    // SCEN-150
-    await page.goto(`${baseURL}/system/operation-history`);
-    await page.selectOption('[data-testid="operation-result-select"]', '成功');
-    await page.click('[data-testid="search-button"]');
-    await expect(page.locator('[data-testid="result-column"]')).toContainText('成功');
-    await page.selectOption('[data-testid="operation-result-select"]', '失敗');
-    await page.click('[data-testid="search-button"]');
-    await page.selectOption('[data-testid="operation-result-select"]', '全て');
-    await page.click('[data-testid="search-button"]');
-  });
-
-  test('SCEN-151: 複数条件組み合わせ検索', async ({ page }) => {
+  test('SCEN-151: 日付範囲指定で履歴が絞り込まれる', async ({ page }) => {
     // SCEN-151
-    await page.goto(`${baseURL}/system/operation-history`);
-    await page.fill('[data-testid="start-date"]', '2024-01-01');
-    await page.fill('[data-testid="end-date"]', '2024-01-07');
-    await page.selectOption('[data-testid="user-select"]', 'user001');
-    await page.selectOption('[data-testid="operation-type-select"]', 'データ更新');
-    await page.selectOption('[data-testid="target-function-select"]', '需要予測');
-    await page.click('[data-testid="search-button"]');
-    await expect(page.locator('[data-testid="history-list"]')).toBeVisible();
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    await page.fill('input[name="startDate"]', '2024-01-01');
+    await page.fill('input[name="endDate"]', '2024-01-31');
+    await page.click('button:has-text("検索")');
+    const dates = await page.locator('td[data-column="date"]').allTextContents();
+    dates.forEach(date => {
+      expect(new Date(date) >= new Date('2024-01-01')).toBe(true);
+      expect(new Date(date) <= new Date('2024-01-31')).toBe(true);
+    });
   });
 
-  test('SCEN-152: 検索条件クリアで全件表示', async ({ page }) => {
+  test('SCEN-152: ユーザー選択で履歴が絞り込まれる', async ({ page }) => {
     // SCEN-152
-    await page.goto(`${baseURL}/system/operation-history`);
-    await page.fill('[data-testid="user-search"]', 'test_user');
-    await page.fill('[data-testid="start-date"]', '2024-01-01');
-    await page.selectOption('[data-testid="operation-type-select"]', 'ログイン');
-    await page.click('[data-testid="search-button"]');
-    await page.click('[data-testid="clear-button"]');
-    await expect(page.locator('[data-testid="user-search"]')).toHaveValue('');
-    await expect(page.locator('[data-testid="start-date"]')).toHaveValue('');
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    await page.click('select[name="userId"]');
+    await page.selectOption('select[name="userId"]', { label: '田中太郎' });
+    await page.click('button:has-text("検索")');
+    const users = await page.locator('td[data-column="username"]').allTextContents();
+    users.forEach(user => {
+      expect(user).toBe('田中太郎');
+    });
   });
 
-  test('SCEN-153: CSV出力が正常実行される', async ({ page }) => {
+  test('SCEN-153: 操作種別フィルターで履歴が絞り込まれる', async ({ page }) => {
     // SCEN-153
-    await page.goto(`${baseURL}/system/operation-history`);
-    await expect(page.locator('[data-testid="history-list"]')).toBeVisible();
-    const downloadPromise = page.waitForEvent('download');
-    await page.click('[data-testid="csv-export-button"]');
-    const download = await downloadPromise;
-    expect(download.suggestedFilename()).toContain('.csv');
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    await page.selectOption('select[name="operationType"]', 'ログイン');
+    await page.click('button:has-text("検索")');
+    let operations = await page.locator('td[data-column="operation"]').allTextContents();
+    operations.forEach(op => expect(op).toContain('ログイン'));
+    
+    await page.selectOption('select[name="operationType"]', 'データ更新');
+    await page.click('button:has-text("検索")');
+    operations = await page.locator('td[data-column="operation"]').allTextContents();
+    operations.forEach(op => expect(op).toContain('データ更新'));
   });
 
-  test('SCEN-154: 操作履歴詳細モーダル表示', async ({ page }) => {
+  test('SCEN-154: 画面名・機能名で履歴が検索される', async ({ page }) => {
     // SCEN-154
-    await page.goto(`${baseURL}/system/operation-history`);
-    await expect(page.locator('[data-testid="history-list"]')).toBeVisible();
-    await page.click('[data-testid="detail-button"]').first();
-    await expect(page.locator('[data-testid="detail-modal"]')).toBeVisible();
-    await expect(page.locator('[data-testid="detail-datetime"]')).toBeVisible();
-    await expect(page.locator('[data-testid="detail-username"]')).toBeVisible();
-    await expect(page.locator('[data-testid="detail-operation"]')).toBeVisible();
-    await expect(page.locator('[data-testid="detail-ipaddress"]')).toBeVisible();
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    await page.fill('input[name="screenName"]', '需要予測画面');
+    await page.click('button:has-text("検索")');
+    let screens = await page.locator('td[data-column="screen"]').allTextContents();
+    screens.forEach(screen => expect(screen).toContain('需要予測画面'));
+    
+    await page.fill('input[name="screenName"]', '');
+    await page.fill('input[name="functionName"]', '発注登録');
+    await page.click('button:has-text("検索")');
+    let functions = await page.locator('td[data-column="function"]').allTextContents();
+    functions.forEach(func => expect(func).toContain('発注登録'));
   });
 
-  test('SCEN-155: ページネーション動作確認', async ({ page }) => {
+  test('SCEN-155: IPアドレスで履歴が検索される', async ({ page }) => {
     // SCEN-155
-    await page.goto(`${baseURL}/system/operation-history`);
-    await expect(page.locator('[data-testid="pagination"]')).toBeVisible();
-    await page.click('[data-testid="next-page"]');
-    await expect(page.locator('[data-testid="current-page"]')).toContainText('2');
-    await page.click('[data-testid="prev-page"]');
-    await expect(page.locator('[data-testid="current-page"]')).toContainText('1');
-    await page.click('[data-testid="page-3"]');
-    await expect(page.locator('[data-testid="current-page"]')).toContainText('3');
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    await page.fill('input[name="ipAddress"]', '192.168.1.100');
+    await page.click('button:has-text("検索")');
+    const ips = await page.locator('td[data-column="ipAddress"]').allTextContents();
+    ips.forEach(ip => expect(ip).toBe('192.168.1.100'));
   });
 
-  test('SCEN-156: 開始日が終了日より後の日付', async ({ page }) => {
+  test('SCEN-156: 操作結果成功・失敗で履歴が絞り込まれる', async ({ page }) => {
     // SCEN-156
-    await page.goto(`${baseURL}/system/operation-history`);
-    await page.fill('[data-testid="start-date"]', '2024-12-31');
-    await page.fill('[data-testid="end-date"]', '2024-01-01');
-    await page.click('[data-testid="search-button"]');
-    await expect(page.locator('[data-testid="error-message"]')).toContainText('開始日が終了日より後');
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    
+    await page.selectOption('select[name="operationResult"]', '成功');
+    await page.click('button:has-text("検索")');
+    let results = await page.locator('td[data-column="result"]').allTextContents();
+    results.forEach(result => expect(result).toBe('成功'));
+    
+    await page.selectOption('select[name="operationResult"]', '失敗');
+    await page.click('button:has-text("検索")');
+    results = await page.locator('td[data-column="result"]').allTextContents();
+    results.forEach(result => expect(result).toBe('失敗'));
+    
+    await page.selectOption('select[name="operationResult"]', 'すべて');
+    await page.click('button:has-text("検索")');
+    results = await page.locator('td[data-column="result"]').allTextContents();
+    expect(results.some(r => r === '成功' || r === '失敗')).toBe(true);
   });
 
-  test('SCEN-157: 存在しないユーザー検索', async ({ page }) => {
+  test('SCEN-157: 複数条件組み合わせで詳細検索できる', async ({ page }) => {
     // SCEN-157
-    await page.goto(`${baseURL}/system/operation-history`);
-    await page.fill('[data-testid="user-search"]', 'nonexistent_user_999');
-    await page.click('[data-testid="search-button"]');
-    await expect(page.locator('[data-testid="error-message"]')).toContainText('該当するユーザーが見つかりません');
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    await page.fill('input[name="startDate"]', '2024-01-01');
+    await page.fill('input[name="endDate"]', '2024-12-31');
+    await page.selectOption('select[name="userId"]', { index: 1 });
+    await page.selectOption('select[name="operationType"]', '発注データ更新');
+    await page.selectOption('select[name="targetFunction"]', '需要予測');
+    await page.click('button:has-text("検索")');
+    
+    await page.selectOption('select[name="operationResult"]', '成功');
+    await page.click('button:has-text("検索")');
+    const results = await page.locator('td[data-column="result"]').allTextContents();
+    results.forEach(result => expect(result).toBe('成功'));
   });
 
-  test('SCEN-158: 不正なIPアドレス形式入力', async ({ page }) => {
+  test('SCEN-158: 検索条件クリアで全条件がリセットされる', async ({ page }) => {
     // SCEN-158
-    await page.goto(`${baseURL}/system/operation-history`);
-    await page.fill('[data-testid="ip-address-search"]', '999.999.999.999');
-    await page.click('[data-testid="search-button"]');
-    await expect(page.locator('[data-testid="validation-error"]')).toContainText('正しいIPアドレス');
-    await page.fill('[data-testid="ip-address-search"]', 'abc.def.ghi.jkl');
-    await page.click('[data-testid="search-button"]');
-    await expect(page.locator('[data-testid="validation-error"]')).toBeVisible();
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    await page.fill('input[name="startDate"]', '2024-01-01');
+    await page.fill('input[name="username"]', 'testuser');
+    await page.selectOption('select[name="operationType"]', 'ログイン');
+    await page.click('button:has-text("検索")');
+    
+    await page.click('button:has-text("クリア")');
+    await expect(page.locator('input[name="startDate"]')).toHaveValue('');
+    await expect(page.locator('input[name="username"]')).toHaveValue('');
+    await expect(page.locator('select[name="operationType"]')).toHaveValue('');
   });
 
-  test('SCEN-159: 検索結果0件時の表示', async ({ page }) => {
+  test('SCEN-159: CSV出力で履歴データがダウンロードされる', async ({ page }) => {
     // SCEN-159
-    await page.goto(`${baseURL}/system/operation-history`);
-    await page.fill('[data-testid="user-search"]', '存在しないユーザー999');
-    await page.fill('[data-testid="start-date"]', '2099-01-01');
-    await page.fill('[data-testid="end-date"]', '2099-01-31');
-    await page.click('[data-testid="search-button"]');
-    await expect(page.locator('[data-testid="no-data-message"]')).toContainText('該当する操作履歴が見つかりませんでした');
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    await page.fill('input[name="startDate"]', '2024-01-01');
+    await page.fill('input[name="endDate"]', '2024-12-31');
+    await page.click('button:has-text("検索")');
+    
+    const downloadPromise = page.waitForEvent('download');
+    await page.click('button:has-text("CSV出力")');
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toMatch(/.*\.csv$/);
   });
 
-  test('SCEN-160: 大量データでのCSV出力', async ({ page }) => {
+  test('SCEN-160: 操作履歴詳細モーダルが表示される', async ({ page }) => {
     // SCEN-160
-    await page.goto(`${baseURL}/system/operation-history`);
-    await page.fill('[data-testid="start-date"]', '2023-01-01');
-    await page.fill('[data-testid="end-date"]', '2024-12-31');
-    await page.click('[data-testid="search-button"]');
-    await page.waitForTimeout(2000);
-    await page.click('[data-testid="csv-export-button"]');
-    await expect(page.locator('[data-testid="error-message"]')).toContainText('タイムアウト|メモリ不足');
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    await page.click('button:has-text("詳細")');
+    await expect(page.locator('.modal')).toBeVisible();
+    await expect(page.locator('.modal .modal-title')).toContainText('操作履歴詳細');
+    await expect(page.locator('.modal [data-field="datetime"]')).toBeVisible();
+    await expect(page.locator('.modal [data-field="username"]')).toBeVisible();
+    await expect(page.locator('.modal [data-field="operation"]')).toBeVisible();
+    await expect(page.locator('.modal [data-field="target"]')).toBeVisible();
+    await expect(page.locator('.modal [data-field="ipAddress"]')).toBeVisible();
   });
 
-  test('SCEN-161: 日付範囲上限値での検索', async ({ page }) => {
+  test('SCEN-161: ページネーションで次ページに移動できる', async ({ page }) => {
     // SCEN-161
-    await page.goto(`${baseURL}/system/operation-history`);
-    const today = new Date().toISOString().split('T')[0];
-    await page.fill('[data-testid="start-date"]', today);
-    await page.fill('[data-testid="end-date"]', '2099-12-31');
-    await page.click('[data-testid="search-button"]');
-    await expect(page.locator('[data-testid="history-list"]')).toBeVisible();
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    await page.click('button:has-text("次へ")');
+    await expect(page.locator('.pagination .active')).toContainText('2');
+    await expect(page.url()).toContain('page=2');
   });
 
-  test('SCEN-162: 検索文字列最大長入力', async ({ page }) => {
+  test('SCEN-162: 開始日が終了日より後の日付でエラー', async ({ page }) => {
     // SCEN-162
-    await page.goto(`${baseURL}/system/operation-history`);
-    const maxLengthString = 'a'.repeat(255);
-    await page.fill('[data-testid="search-field"]', maxLengthString);
-    await page.click('[data-testid="search-button"]');
-    await expect(page.locator('[data-testid="history-list"]')).toBeVisible();
-    const overMaxString = 'a'.repeat(256);
-    await page.fill('[data-testid="search-field"]', overMaxString);
-    const inputValue = await page.locator('[data-testid="search-field"]').inputValue();
-    expect(inputValue.length).toBeLessThanOrEqual(255);
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    await page.fill('input[name="startDate"]', '2024-12-31');
+    await page.fill('input[name="endDate"]', '2024-01-01');
+    await page.click('button:has-text("検索")');
+    await expect(page.locator('.error-message')).toContainText('開始日は終了日より前の日付を入力してください');
   });
 
-  test('SCEN-163: 最終ページでのページネーション', async ({ page }) => {
+  test('SCEN-163: 存在しない画面名で検索結果なし', async ({ page }) => {
     // SCEN-163
-    await page.goto(`${baseURL}/system/operation-history`);
-    await page.click('[data-testid="last-page"]');
-    await expect(page.locator('[data-testid="next-page"]')).toBeDisabled();
-    await expect(page.locator('[data-testid="prev-page"]')).toBeEnabled();
-    await page.click('[data-testid="prev-page"]');
-    await page.click('[data-testid="next-page"]');
-    await expect(page.locator('[data-testid="next-page"]')).toBeDisabled();
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    await page.fill('input[name="screenName"]', '存在しない画面ABC123');
+    await page.click('button:has-text("検索")');
+    await expect(page.locator('.no-results')).toContainText('該当する操作履歴が見つかりませんでした');
   });
 
-  test('SCEN-164: 1件のみ表示時の動作', async ({ page }) => {
+  test('SCEN-164: 不正なIPアドレス形式でエラー', async ({ page }) => {
     // SCEN-164
-    await page.goto(`${baseURL}/system/operation-history`);
-    await page.fill('[data-testid="user-search"]', 'single_record_user');
-    await page.click('[data-testid="search-button"]');
-    await expect(page.locator('[data-testid="history-list"] tr')).toHaveCount(1);
-    await page.click('[data-testid="history-list"] tr').first();
-    await expect(page.locator('[data-testid="pagination"]')).not.toBeVisible();
-    await page.click('[data-testid="sort-datetime"]');
-    await expect(page.locator('[data-testid="history-list"] tr')).toHaveCount(1);
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    await page.fill('input[name="ipAddress"]', '999.999.999.999');
+    await page.click('button:has-text("検索")');
+    await expect(page.locator('.error-message')).toContainText('正しいIPアドレス形式で入力してください');
+  });
+
+  test('SCEN-165: 履歴データなしでCSV出力エラー', async ({ page }) => {
+    // SCEN-165
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    await page.fill('input[name="startDate"]', '1999-01-01');
+    await page.fill('input[name="endDate"]', '1999-01-01');
+    await page.click('button:has-text("検索")');
+    await page.click('button:has-text("CSV出力")');
+    await expect(page.locator('.error-message')).toContainText('出力可能なデータがありません');
+  });
+
+  test('SCEN-166: 存在しないページ番号でエラー', async ({ page }) => {
+    // SCEN-166
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    await page.goto(baseURL + '/system/operation-history?page=999999');
+    await expect(page.locator('.error-message')).toContainText('指定されたページが見つかりません');
+  });
+
+  test('SCEN-167: 日付範囲の境界値で正常検索', async ({ page }) => {
+    // SCEN-167
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    
+    const today = new Date().toISOString().split('T')[0];
+    await page.fill('input[name="startDate"]', today);
+    await page.fill('input[name="endDate"]', today);
+    await page.click('button:has-text("検索")');
+    await expect(page.locator('table')).toBeVisible();
+    
+    const past30Days = new Date();
+    past30Days.setDate(past30Days.getDate() - 30);
+    await page.fill('input[name="startDate"]', past30Days.toISOString().split('T')[0]);
+    await page.fill('input[name="endDate"]', today);
+    await page.click('button:has-text("検索")');
+    await expect(page.locator('table')).toBeVisible();
+    
+    await page.fill('input[name="startDate"]', '2020-01-01');
+    await page.fill('input[name="endDate"]', today);
+    await page.click('button:has-text("検索")');
+    await expect(page.locator('table')).toBeVisible();
+  });
+
+  test('SCEN-168: 最大文字数での画面名検索', async ({ page }) => {
+    // SCEN-168
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    
+    const maxLengthString = 'a'.repeat(255);
+    await page.fill('input[name="screenName"]', maxLengthString);
+    await page.click('button:has-text("検索")');
+    await expect(page.locator('table')).toBeVisible();
+    
+    const overLengthString = 'a'.repeat(256);
+    await page.fill('input[name="screenName"]', overLengthString);
+    await page.click('button:has-text("検索")');
+    await expect(page.locator('.error-message')).toContainText('文字数制限を超えています');
+  });
+
+  test('SCEN-169: IPv6アドレスでの検索', async ({ page }) => {
+    // SCEN-169
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    await page.fill('input[name="ipAddress"]', '2001:db8::1');
+    await page.click('button:has-text("検索")');
+    await expect(page.locator('table')).toBeVisible();
+    
+    await page.fill('input[name="ipAddress"]', '2001:db8::gg1');
+    await page.click('button:has-text("検索")');
+    await expect(page.locator('.error-message')).toContainText('正しいIPアドレス形式で入力してください');
+  });
+
+  test('SCEN-170: 大量データでのCSV出力', async ({ page }) => {
+    // SCEN-170
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    
+    const downloadPromise = page.waitForEvent('download');
+    await page.click('button:has-text("CSV出力")');
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toMatch(/.*\.csv$/);
+    const path = await download.path();
+    expect(path).toBeTruthy();
+  });
+
+  test('SCEN-171: 最大ページ数でのページネーション', async ({ page }) => {
+    // SCEN-171
+    await page.click('text=システム管理');
+    await page.click('text=操作履歴管理');
+    
+    const lastPageButton = page.locator('.pagination button').last();
+    await lastPageButton.click();
+    await expect(page.locator('button:has-text("次へ")')).toBeDisabled();
+    await expect(page.locator('button:has-text("前へ")')).toBeEnabled();
+    
+    await page.click('button:has-text("前へ")');
+    const currentPage = await page.locator('.pagination .active').textContent();
+    expect(parseInt(currentPage || '0')).toBeGreaterThan(0);
   });
 });

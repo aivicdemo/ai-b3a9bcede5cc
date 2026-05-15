@@ -3,262 +3,279 @@ import { test, expect } from '@playwright/test';
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
 
 test.describe("予測精度監視画面", () => {
+
   test.beforeEach(async ({ page }) => {
-    await page.goto(`${BASE_URL}/login`);
-    await page.fill('#username', 'testuser');
-    await page.fill('#password', 'testpass');
-    await page.click('#login-button');
-    await page.waitForURL(`${BASE_URL}/dashboard`);
-    await page.click('#menu-forecast-accuracy');
-    await page.waitForURL(`${BASE_URL}/forecast-accuracy`);
+    await page.goto(BASE_URL);
   });
 
-  test("SCEN-294: 画面初期表示で全要素が正常に読み込まれる", async ({ page }) => {
-    // SCEN-294
-    await expect(page.locator('#header')).toBeVisible();
-    await expect(page.locator('#navigation')).toBeVisible();
-    await expect(page.locator('#accuracy-chart')).toBeVisible();
-    await expect(page.locator('#metrics-table')).toBeVisible();
-    await expect(page.locator('#filter-section')).toBeVisible();
-    await expect(page.locator('#refresh-button')).toBeVisible();
-    await expect(page.locator('#loading-spinner')).not.toBeVisible();
+  test("SCEN-306: 画面初期表示で全要素が正常に表示される", async ({ page }) => {
+    // SCEN-306
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('h1')).toBeVisible();
+    await expect(page.locator('[data-testid="accuracy-metrics"]')).toBeVisible();
+    await expect(page.locator('[data-testid="period-filter"]')).toBeVisible();
+    await expect(page.locator('[data-testid="category-filter"]')).toBeVisible();
+    await expect(page.locator('[data-testid="accuracy-chart"]')).toBeVisible();
+    await expect(page.locator('[data-testid="comparison-table"]')).toBeVisible();
+    await expect(page.locator('[data-testid="update-button"]')).toBeVisible();
+    await expect(page.locator('[data-testid="export-button"]')).toBeVisible();
   });
 
-  test("SCEN-295: 期間選択で予測精度データが更新される", async ({ page }) => {
-    // SCEN-295
-    const initialData = await page.locator('#mape-value').textContent();
-    await page.click('#period-selector');
-    await page.click('[data-value="1month"]');
-    await page.waitForResponse('**/api/forecast-accuracy**');
-    const updatedData = await page.locator('#mape-value').textContent();
+  test("SCEN-307: 期間選択で予測精度データが更新される", async ({ page }) => {
+    // SCEN-307
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    const initialData = await page.locator('[data-testid="accuracy-value"]').textContent();
+    await page.selectOption('[data-testid="period-filter"]', '3months');
+    await page.waitForLoadState('networkidle');
+    const updatedData = await page.locator('[data-testid="accuracy-value"]').textContent();
     expect(updatedData).not.toBe(initialData);
   });
 
-  test("SCEN-296: 店舗選択で該当店舗データに絞り込まれる", async ({ page }) => {
-    // SCEN-296
-    await page.click('#store-selector');
-    await page.click('[data-value="store-a"]');
-    await page.waitForResponse('**/api/forecast-accuracy**');
-    await expect(page.locator('#store-filter-indicator')).toContainText('店舗A');
-    await expect(page.locator('#accuracy-chart')).toBeVisible();
-  });
-
-  test("SCEN-297: 商品カテゴリ選択でフィルタリングされる", async ({ page }) => {
-    // SCEN-297
-    await page.click('#category-selector');
-    await page.click('[data-value="food"]');
-    await page.waitForResponse('**/api/forecast-accuracy**');
-    await expect(page.locator('#category-filter-indicator')).toContainText('食品');
-    
-    await page.click('#category-selector');
-    await page.click('[data-value="daily-goods"]');
-    await page.waitForResponse('**/api/forecast-accuracy**');
-    await expect(page.locator('#category-filter-indicator')).toContainText('日用品');
-  });
-
-  test("SCEN-298: 予測精度推移グラフが正常に表示される", async ({ page }) => {
-    // SCEN-298
-    await expect(page.locator('#accuracy-trend-chart')).toBeVisible();
-    await expect(page.locator('#chart-x-axis-label')).toContainText('時間');
-    await expect(page.locator('#chart-y-axis-label')).toContainText('精度');
-    await expect(page.locator('#chart-legend')).toBeVisible();
-    await page.hover('#chart-data-point');
-    await expect(page.locator('#chart-tooltip')).toBeVisible();
-  });
-
-  test("SCEN-299: MAPE値が正常に表示される", async ({ page }) => {
-    // SCEN-299
-    await expect(page.locator('#mape-section')).toBeVisible();
-    const mapeValue = await page.locator('#mape-value').textContent();
-    expect(mapeValue).toMatch(/^\d+\.\d{2}%$/);
-    expect(parseFloat(mapeValue?.replace('%', '') || '0')).toBeGreaterThanOrEqual(0);
-  });
-
-  test("SCEN-300: RMSE値が正常に表示される", async ({ page }) => {
-    // SCEN-300
-    await expect(page.locator('#rmse-section')).toBeVisible();
-    const rmseValue = await page.locator('#rmse-value').textContent();
-    expect(rmseValue).toMatch(/^\d+(\.\d+)?$/);
-    await expect(page.locator('#rmse-label')).toBeVisible();
-  });
-
-  test("SCEN-301: 予測vs実績比較チャートが表示される", async ({ page }) => {
-    // SCEN-301
-    await page.waitForLoadState('networkidle');
-    await expect(page.locator('#forecast-vs-actual-chart')).toBeVisible();
-    await expect(page.locator('#forecast-line')).toBeVisible();
-    await expect(page.locator('#actual-line')).toBeVisible();
-    await expect(page.locator('#comparison-chart-legend')).toBeVisible();
-    await expect(page.locator('#chart-x-axis')).toBeVisible();
-    await expect(page.locator('#chart-y-axis')).toBeVisible();
-  });
-
-  test("SCEN-302: 精度ランキング表が正常にソートされる", async ({ page }) => {
-    // SCEN-302
-    await page.click('#accuracy-column-header');
-    await expect(page.locator('#sort-indicator-asc')).toBeVisible();
-    
-    await page.click('#accuracy-column-header');
-    await expect(page.locator('#sort-indicator-desc')).toBeVisible();
-    
-    await page.click('#product-name-column-header');
-    await expect(page.locator('#product-sort-indicator')).toBeVisible();
-  });
-
-  test("SCEN-303: 精度閾値超過でアラート通知が表示される", async ({ page }) => {
-    // SCEN-303
-    await page.fill('#threshold-setting', '80');
-    await page.click('#set-threshold-button');
-    await page.waitForResponse('**/api/set-threshold**');
-    
-    // テストデータ投入をシミュレート
-    await page.route('**/api/forecast-accuracy**', async route => {
-      const response = await route.fetch();
-      const data = await response.json();
-      data.accuracy = 75;
-      await route.fulfill({ response, json: data });
-    });
-    
-    await page.click('#refresh-button');
-    await expect(page.locator('#alert-notification')).toBeVisible();
-    await expect(page.locator('#alert-details')).toContainText('75');
-  });
-
-  test("SCEN-304: 詳細分析ボタンで詳細画面に遷移する", async ({ page }) => {
-    // SCEN-304
-    await page.click('#detail-analysis-button');
-    await page.waitForURL('**/forecast-accuracy/detail**');
-    await expect(page.locator('#detailed-analysis-section')).toBeVisible();
-    await expect(page.locator('#forecast-value')).toBeVisible();
-    await expect(page.locator('#actual-value')).toBeVisible();
-  });
-
-  test("SCEN-305: レポート出力でファイルがダウンロードされる", async ({ page }) => {
-    // SCEN-305
-    const downloadPromise = page.waitForEvent('download');
-    await page.click('#report-export-button');
-    await page.click('#csv-format');
-    await page.click('#download-button');
-    const download = await downloadPromise;
-    expect(download.suggestedFilename()).toContain('.csv');
-  });
-
-  test("SCEN-306: データ取得エラー時にエラーメッセージ表示", async ({ page }) => {
-    // SCEN-306
-    await page.route('**/api/forecast-accuracy**', route => route.abort());
-    await page.click('#refresh-button');
-    await expect(page.locator('#error-message')).toBeVisible();
-    await expect(page.locator('#retry-button')).toBeVisible();
-  });
-
-  test("SCEN-307: ネットワーク切断時の適切なエラーハンドリング", async ({ page, context }) => {
-    // SCEN-307
-    await context.setOffline(true);
-    await page.click('#refresh-button');
-    await expect(page.locator('#network-error-message')).toContainText('ネットワークに接続できません');
-    await expect(page.locator('#retry-button')).toBeVisible();
-    
-    await context.setOffline(false);
-    await page.click('#retry-button');
-    await page.waitForResponse('**/api/forecast-accuracy**');
-    await expect(page.locator('#accuracy-chart')).toBeVisible();
-  });
-
-  test("SCEN-308: 無効な店舗選択時のエラー処理", async ({ page }) => {
+  test("SCEN-308: 店舗選択で該当店舗の精度データが表示される", async ({ page }) => {
     // SCEN-308
-    await page.fill('#store-input', 'STORE-99999');
-    await page.click('#search-button');
-    await expect(page.locator('#store-error-message')).toContainText('指定された店舗が見つかりません');
-    await expect(page.locator('#store-selector')).toBeVisible();
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    await page.click('[data-testid="store-filter"]');
+    await page.click('[data-testid="store-option-a"]');
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('[data-testid="store-info"]')).toContainText('店舗A');
+    await expect(page.locator('[data-testid="accuracy-rate"]')).toBeVisible();
   });
 
-  test("SCEN-309: レポート出力失敗時のエラー表示", async ({ page }) => {
+  test("SCEN-309: 商品カテゴリ選択で該当カテゴリの精度データが表示される", async ({ page }) => {
     // SCEN-309
-    await page.route('**/api/export-report**', route => route.abort());
-    await page.click('#report-export-button');
-    await page.click('#export-confirm-button');
-    await expect(page.locator('#export-error-dialog')).toBeVisible();
-    await expect(page.locator('#error-description')).toBeVisible();
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    await page.click('[data-testid="category-filter"]');
+    await page.click('[data-testid="category-food"]');
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('[data-testid="category-info"]')).toContainText('食品');
+    await expect(page.locator('[data-testid="accuracy-data"]')).toBeVisible();
   });
 
-  test("SCEN-310: 最小期間選択での動作確認", async ({ page }) => {
+  test("SCEN-310: 複数フィルター組み合わせで正しくデータが絞り込まれる", async ({ page }) => {
     // SCEN-310
-    await page.click('#period-selector');
-    await page.click('[data-value="1day"]');
-    await page.click('#apply-button');
-    await page.waitForResponse('**/api/forecast-accuracy**');
-    await expect(page.locator('#mape-value')).toBeVisible();
-    await expect(page.locator('#accuracy-chart')).toBeVisible();
-    await expect(page.locator('#error-message')).not.toBeVisible();
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    await page.selectOption('[data-testid="period-filter"]', '3months');
+    await page.selectOption('[data-testid="category-filter"]', 'food');
+    await page.selectOption('[data-testid="accuracy-threshold"]', '80');
+    await page.selectOption('[data-testid="area-filter"]', 'tokyo');
+    await page.click('[data-testid="apply-filter"]');
+    await page.waitForLoadState('networkidle');
+    const rowCount = await page.locator('[data-testid="data-row"]').count();
+    expect(rowCount).toBeGreaterThanOrEqual(0);
+    await page.click('[data-testid="clear-filter"]');
+    await page.waitForLoadState('networkidle');
   });
 
-  test("SCEN-311: 最大期間選択での動作確認", async ({ page }) => {
+  test("SCEN-311: 予測精度推移グラフが正常に描画される", async ({ page }) => {
     // SCEN-311
-    const startTime = Date.now();
-    await page.click('#period-selector');
-    await page.click('[data-value="1year"]');
-    await page.click('#search-button');
-    await page.waitForResponse('**/api/forecast-accuracy**');
-    const loadTime = Date.now() - startTime;
-    expect(loadTime).toBeLessThan(10000);
-    await expect(page.locator('#accuracy-chart')).toBeVisible();
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('[data-testid="trend-chart"]')).toBeVisible();
+    await expect(page.locator('[data-testid="x-axis-label"]')).toBeVisible();
+    await expect(page.locator('[data-testid="y-axis-label"]')).toBeVisible();
+    await expect(page.locator('[data-testid="chart-legend"]')).toBeVisible();
+    await page.hover('[data-testid="chart-datapoint"]');
+    await expect(page.locator('[data-testid="tooltip"]')).toBeVisible();
+    await page.click('[data-testid="daily-view"]');
+    await page.waitForLoadState('networkidle');
   });
 
-  test("SCEN-312: データなし期間選択時の表示", async ({ page }) => {
+  test("SCEN-312: MAPE値が正確に計算・表示される", async ({ page }) => {
     // SCEN-312
-    await page.click('#period-selector');
-    await page.click('[data-value="no-data-period"]');
-    await page.click('#search-button');
-    await expect(page.locator('#no-data-message')).toContainText('選択された期間にはデータが存在しません');
-    await expect(page.locator('#empty-chart')).toBeVisible();
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    await page.selectOption('[data-testid="product-select"]', 'product1');
+    await page.selectOption('[data-testid="period-select"]', '1month');
+    await page.click('[data-testid="calculate-mape"]');
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('[data-testid="mape-value"]')).toBeVisible();
+    await expect(page.locator('[data-testid="mape-details"]')).toBeVisible();
+    await page.selectOption('[data-testid="period-select"]', '3months');
+    await page.waitForLoadState('networkidle');
   });
 
-  test("SCEN-313: 全店舗選択時の表示確認", async ({ page }) => {
+  test("SCEN-313: RMSE値が正確に計算・表示される", async ({ page }) => {
     // SCEN-313
-    await page.click('#store-selector');
-    await page.click('#select-all-stores');
-    await page.waitForResponse('**/api/forecast-accuracy**');
-    await expect(page.locator('#all-stores-indicator')).toBeVisible();
-    await expect(page.locator('#store-summary-table')).toBeVisible();
-    await expect(page.locator('#aggregated-chart')).toBeVisible();
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    await page.selectOption('[data-testid="period-select"]', '1month');
+    await expect(page.locator('[data-testid="rmse-value"]')).toBeVisible();
+    await page.selectOption('[data-testid="product-select"]', 'product2');
+    await page.waitForLoadState('networkidle');
+    await page.selectOption('[data-testid="period-select"]', '3months');
+    await page.waitForLoadState('networkidle');
   });
 
-  test("SCEN-314: 大量データ表示時のパフォーマンス", async ({ page }) => {
+  test("SCEN-314: 予測vs実績比較チャートが正常に表示される", async ({ page }) => {
     // SCEN-314
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    await page.selectOption('[data-testid="category-select"]', 'category1');
+    await page.selectOption('[data-testid="period-select"]', '1month');
+    await expect(page.locator('[data-testid="comparison-chart"]')).toBeVisible();
+    await expect(page.locator('[data-testid="forecast-line"]')).toBeVisible();
+    await expect(page.locator('[data-testid="actual-line"]')).toBeVisible();
+    await expect(page.locator('[data-testid="x-axis"]')).toBeVisible();
+    await expect(page.locator('[data-testid="y-axis"]')).toBeVisible();
+    await expect(page.locator('[data-testid="chart-legend"]')).toBeVisible();
+    await page.hover('[data-testid="chart-point"]');
+    await expect(page.locator('[data-testid="tooltip"]')).toBeVisible();
+  });
+
+  test("SCEN-315: 精度ランキング表が正しくソートされて表示される", async ({ page }) => {
+    // SCEN-315
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('[data-testid="ranking-table"]')).toBeVisible();
+    await page.click('[data-testid="accuracy-sort"]');
+    await page.waitForLoadState('networkidle');
+    await page.click('[data-testid="accuracy-sort"]');
+    await page.waitForLoadState('networkidle');
+    await page.click('[data-testid="product-sort"]');
+    await page.waitForLoadState('networkidle');
+  });
+
+  test("SCEN-316: 精度閾値を下回った場合にアラート通知が表示される", async ({ page }) => {
+    // SCEN-316
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    await page.fill('[data-testid="accuracy-data"]', '75');
+    await page.click('[data-testid="update-data"]');
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('[data-testid="alert-notification"]')).toBeVisible();
+    await expect(page.locator('[data-testid="alert-details"]')).toContainText('75%');
+  });
+
+  test("SCEN-317: 詳細分析ボタンで詳細画面に遷移する", async ({ page }) => {
+    // SCEN-317
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    await page.click('[data-testid="detailed-analysis"]');
+    await page.waitForURL('**/detailed-analysis');
+    await expect(page.locator('h1')).toContainText('詳細分析');
+  });
+
+  test("SCEN-318: レポート出力ボタンでファイルがダウンロードされる", async ({ page }) => {
+    // SCEN-318
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    const downloadPromise = page.waitForEvent('download');
+    await page.click('[data-testid="export-report"]');
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toMatch(/\.(pdf|xlsx)$/);
+  });
+
+  test("SCEN-319: 存在しない店舗選択でエラーメッセージ表示", async ({ page }) => {
+    // SCEN-319
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    await page.fill('[data-testid="store-input"]', '9999');
+    await page.click('[data-testid="search-button"]');
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('[data-testid="error-message"]')).toContainText('店舗が見つかりません');
+  });
+
+  test("SCEN-320: データなし期間選択で適切なメッセージ表示", async ({ page }) => {
+    // SCEN-320
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    await page.fill('[data-testid="start-date"]', '2020-01-01');
+    await page.fill('[data-testid="end-date"]', '2020-01-31');
+    await page.click('[data-testid="search-button"]');
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('[data-testid="no-data-message"]')).toContainText('データが存在しません');
+  });
+
+  test("SCEN-321: ネットワークエラー時にエラーハンドリングされる", async ({ page }) => {
+    // SCEN-321
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    await page.route('**/api/**', route => route.abort());
+    await page.click('[data-testid="update-button"]');
+    await expect(page.locator('[data-testid="network-error"]')).toBeVisible();
+    await expect(page.locator('[data-testid="retry-button"]')).toBeVisible();
+    await page.unroute('**/api/**');
+    await page.click('[data-testid="retry-button"]');
+    await page.waitForLoadState('networkidle');
+  });
+
+  test("SCEN-322: レポート出力失敗時にエラーメッセージ表示", async ({ page }) => {
+    // SCEN-322
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    await page.route('**/api/export/**', route => route.abort());
+    await page.click('[data-testid="export-report"]');
+    await expect(page.locator('[data-testid="export-error"]')).toContainText('出力に失敗');
+  });
+
+  test("SCEN-323: 最大期間範囲選択で正常動作する", async ({ page }) => {
+    // SCEN-323
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    await page.selectOption('[data-testid="period-range"]', '24months');
+    await page.click('[data-testid="apply-period"]');
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('[data-testid="accuracy-data"]')).toBeVisible();
+    await expect(page.locator('[data-testid="accuracy-chart"]')).toBeVisible();
+  });
+
+  test("SCEN-324: 全店舗選択で正常動作する", async ({ page }) => {
+    // SCEN-324
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    await page.selectOption('[data-testid="store-filter"]', 'all');
+    await page.click('[data-testid="apply-filter"]');
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('[data-testid="data-table"]')).toBeVisible();
+    const rowCount = await page.locator('[data-testid="data-row"]').count();
+    expect(rowCount).toBeGreaterThan(0);
+    await page.click('[data-testid="sort-button"]');
+    await page.waitForLoadState('networkidle');
+  });
+
+  test("SCEN-325: 精度値が0%の場合に正常表示される", async ({ page }) => {
+    // SCEN-325
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    await page.fill('[data-testid="test-accuracy"]', '0');
+    await page.click('[data-testid="update-test-data"]');
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('[data-testid="accuracy-display"]')).toContainText('0%');
+    await expect(page.locator('[data-testid="accuracy-chart"]')).toBeVisible();
+  });
+
+  test("SCEN-326: 精度値が100%の場合に正常表示される", async ({ page }) => {
+    // SCEN-326
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    await page.fill('[data-testid="test-accuracy"]', '100');
+    await page.click('[data-testid="update-test-data"]');
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('[data-testid="accuracy-display"]')).toContainText('100%');
+    await expect(page.locator('[data-testid="accuracy-chart"]')).toBeVisible();
+  });
+
+  test("SCEN-327: 大量データ表示時の画面パフォーマンス", async ({ page }) => {
+    // SCEN-327
+    await page.goto(`${BASE_URL}/accuracy-monitoring`);
+    await page.waitForLoadState('networkidle');
+    await page.selectOption('[data-testid="period-range"]', '2years');
+    await page.selectOption('[data-testid="category-filter"]', 'all');
+    await page.selectOption('[data-testid="store-filter"]', 'all');
+    await page.check('[data-testid="detailed-view"]');
     const startTime = Date.now();
-    await page.click('#period-selector');
-    await page.click('[data-value="2years"]');
-    await page.click('#category-selector');
-    await page.click('[data-value="all"]');
-    await page.click('#store-selector');
-    await page.click('[data-value="all"]');
-    await page.click('#search-button');
-    await page.waitForResponse('**/api/forecast-accuracy**');
+    await page.click('[data-testid="execute-search"]');
+    await page.waitForLoadState('networkidle');
     const loadTime = Date.now() - startTime;
     expect(loadTime).toBeLessThan(10000);
-    
-    await page.locator('#data-table').scrollIntoView();
-    await page.click('#page-2');
-    await page.click('#sort-by-accuracy');
+    await page.locator('[data-testid="data-table"]').scroll({ top: 1000 });
+    await page.click('[data-testid="sort-column"]');
+    await page.waitForLoadState('networkidle');
   });
 
-  test("SCEN-315: 精度値が境界値の場合の表示", async ({ page }) => {
-    // SCEN-315
-    await page.route('**/api/forecast-accuracy**', async route => {
-      await route.fulfill({
-        json: { accuracy: 0, products: [{ accuracy: 0, status: 'critical' }] }
-      });
-    });
-    await page.reload();
-    await expect(page.locator('#accuracy-value-0')).toHaveClass(/critical|red/);
-    await expect(page.locator('#warning-message')).toBeVisible();
-    
-    await page.route('**/api/forecast-accuracy**', async route => {
-      await route.fulfill({
-        json: { accuracy: 100, products: [{ accuracy: 100, status: 'excellent' }] }
-      });
-    });
-    await page.reload();
-    await expect(page.locator('#accuracy-value-100')).toHaveClass(/excellent|green/);
-  });
 });

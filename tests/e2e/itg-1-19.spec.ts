@@ -1,230 +1,217 @@
 import { test, expect } from '@playwright/test';
 
 test.describe("モデル本番適用処理", () => {
-  const baseURL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
-
   test.beforeEach(async ({ page }) => {
-    await page.goto(baseURL);
-    await page.fill('#username', 'admin');
-    await page.fill('#password', 'password');
-    await page.click('#login-button');
-    await page.waitForURL('**/dashboard');
+    await page.goto(process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000");
+    // ログイン処理（認証が必要な場合）
   });
 
-  test('SCEN-356: 適用対象モデルを選択して本番適用が正常完了する', async ({ page }) => {
-    // SCEN-356
+  test("SCEN-361: 検証済みモデルで正常適用完了", async ({ page }) => {
+    // SCEN-361
+    await page.goto("/");
+    await page.waitForLoadState();
+    await page.click('text=検証済みモデル一覧');
+    await page.waitForURL('**/verified-models');
+    await page.click('[data-status="verified"]:first-child');
+    await page.click('text=本番適用');
+    await page.click('text=OK');
+    await page.waitForSelector('[data-testid="progress-indicator"]');
+    await page.waitForSelector('text=適用完了', { timeout: 60000 });
+    await expect(page.locator('[data-status="production"]')).toBeVisible();
+  });
+
+  test("SCEN-362: 複数店舗選択で一括適用完了", async ({ page }) => {
+    // SCEN-362
+    await page.goto("/");
+    await page.click('text=モデル本番適用');
+    await page.waitForURL('**/model-deployment');
+    await page.check('[name="store"]:nth-child(1)');
+    await page.check('[name="store"]:nth-child(2)');
+    await page.check('[name="store"]:nth-child(3)');
+    await expect(page.locator('text=選択店舗数: 3')).toBeVisible();
+    await page.selectOption('[name="model"]', { index: 1 });
+    await page.click('text=一括適用');
+    await expect(page.locator('text=確認')).toBeVisible();
+    await page.click('text=実行');
+    await page.waitForSelector('[data-testid="batch-progress"]');
+    await page.waitForSelector('text=完了通知', { timeout: 120000 });
+    await expect(page.locator('[data-status="completed"]')).toHaveCount(3);
+  });
+
+  test("SCEN-363: バックアップ有効で適用完了", async ({ page }) => {
+    // SCEN-363
+    await page.goto("/");
     await page.click('text=モデル管理');
     await page.waitForURL('**/model-management');
-    await expect(page.locator('.model-list')).toBeVisible();
-    await page.click('.model-item:first-child .select-button');
-    await page.click('#production-apply-button');
-    await page.click('#confirm-dialog-yes');
-    await expect(page.locator('.progress-indicator')).toBeVisible();
-    await expect(page.locator('.completion-notification')).toBeVisible({ timeout: 30000 });
-    await expect(page.locator('.model-status')).toHaveText('本番適用中');
+    await page.click('[data-testid="model-row"]:first-child');
+    await page.click('text=本番適用');
+    await page.check('[name="backup"]');
+    await page.click('text=実行');
+    await page.waitForSelector('[data-testid="deployment-progress"]');
+    await page.waitForSelector('text=適用完了通知');
+    await expect(page.locator('[data-status="production"]')).toBeVisible();
   });
 
-  test('SCEN-357: 複数店舗を選択してモデル適用が正常実行される', async ({ page }) => {
-    // SCEN-357
-    await page.click('text=モデル本番適用処理');
-    await page.waitForURL('**/model-production-apply');
-    await page.check('.store-checkbox:nth-child(1)');
-    await page.check('.store-checkbox:nth-child(2)');
-    await page.check('.store-checkbox:nth-child(3)');
-    await page.selectOption('#model-select', '1');
-    await page.fill('#apply-start-date', '2024-01-01');
-    await page.click('#execute-apply-button');
-    await page.click('#confirm-dialog-ok');
-    await expect(page.locator('.progress-status')).toBeVisible();
-    await expect(page.locator('.completion-message')).toBeVisible({ timeout: 30000 });
-    await expect(page.locator('.store-status')).toContainText('成功');
-  });
-
-  test('SCEN-358: バックアップ設定ONでモデル適用が正常完了する', async ({ page }) => {
-    // SCEN-358
-    await page.click('text=モデル管理');
-    await page.click('.model-item:first-child');
-    await page.click('#production-apply-button');
-    await page.check('#backup-setting');
-    await page.click('#execute-button');
-    await expect(page.locator('.progress-indicator')).toBeVisible();
-    await expect(page.locator('.completion-notification')).toBeVisible({ timeout: 30000 });
-    await page.click('#back-to-list');
-    await expect(page.locator('.apply-status')).toHaveText('本番適用中');
-    await expect(page.locator('.backup-log')).toContainText('バックアップ作成完了');
-  });
-
-  test('SCEN-359: 適用実行後にロールバックが正常実行される', async ({ page }) => {
-    // SCEN-359
-    await page.click('text=モデル本番適用処理');
-    await page.selectOption('#model-select', '1');
-    await page.click('#execute-apply-button');
-    await expect(page.locator('.completion-message')).toBeVisible({ timeout: 30000 });
-    await page.click('text=モデル管理');
-    await page.click('.model-item .rollback-button');
-    await page.click('#rollback-confirm');
-    await expect(page.locator('.rollback-progress')).toBeVisible();
-    await expect(page.locator('.rollback-completion')).toBeVisible({ timeout: 30000 });
-    await expect(page.locator('.current-model-info')).toContainText('前バージョン');
-    await expect(page.locator('.system-status')).toHaveText('正常稼働');
-  });
-
-  test('SCEN-360: 適用状況進捗バーが正常に更新される', async ({ page }) => {
-    // SCEN-360
-    await page.click('text=モデル管理');
-    await page.click('.model-item:first-child .select-button');
-    await page.click('#production-apply-button');
-    await page.click('#confirm-execute');
-    await expect(page.locator('.progress-bar')).toHaveAttribute('value', '0');
-    await expect(page.locator('.progress-bar')).not.toHaveAttribute('value', '0', { timeout: 5000 });
-    await expect(page.locator('.progress-stage')).toContainText('検証');
-    await expect(page.locator('.progress-stage')).toContainText('デプロイ');
-    await expect(page.locator('.progress-stage')).toContainText('切替');
-    await expect(page.locator('.progress-bar')).toHaveAttribute('value', '100', { timeout: 30000 });
-  });
-
-  test('SCEN-361: 適用結果ログが正常に表示される', async ({ page }) => {
-    // SCEN-361
-    await page.click('text=モデル管理');
-    await page.click('.model-item.applied:first-child');
-    await page.click('#apply-result-log');
-    await expect(page.locator('.log-display')).toBeVisible();
-    await expect(page.locator('.log-start-time')).toBeVisible();
-    await expect(page.locator('.log-completion-time')).toBeVisible();
-    await expect(page.locator('.log-status')).toBeVisible();
-    await expect(page.locator('.log-details')).toBeVisible();
-  });
-
-  test('SCEN-362: モデル未選択で適用実行時にエラー表示', async ({ page }) => {
-    // SCEN-362
-    await page.click('text=モデル本番適用処理');
-    await page.click('#execute-apply-button');
-    await expect(page.locator('.error-message')).toHaveText('モデルを選択してください');
-    await expect(page.locator('.progress-indicator')).not.toBeVisible();
-  });
-
-  test('SCEN-363: 店舗未選択で適用実行時にエラー表示', async ({ page }) => {
-    // SCEN-363
-    await page.click('text=モデル本番適用処理');
-    await page.selectOption('#model-select', '1');
-    await page.click('#execute-apply-button');
-    await expect(page.locator('.error-message')).toHaveText('店舗を選択してください');
-    await expect(page.locator('.progress-indicator')).not.toBeVisible();
-  });
-
-  test('SCEN-364: 適用開始日時未入力で適用実行時にエラー表示', async ({ page }) => {
+  test("SCEN-364: 適用後ロールバック実行完了", async ({ page }) => {
     // SCEN-364
-    await page.click('text=モデル本番適用処理');
-    await page.selectOption('#model-select', '1');
-    await page.fill('#apply-end-date', '2024-12-31');
-    await page.click('#execute-apply-button');
-    await expect(page.locator('.error-message')).toHaveText('適用開始日時を入力してください');
-    await expect(page.locator('.progress-indicator')).not.toBeVisible();
+    await page.goto("/");
+    await page.click('text=モデル管理');
+    await page.waitForURL('**/model-management');
+    await page.click('[data-status="production"]:first-child');
+    await page.click('text=ロールバック');
+    await page.click('text=実行');
+    await page.waitForSelector('[data-testid="rollback-progress"]');
+    await page.waitForSelector('text=ロールバック完了通知');
+    await expect(page.locator('[data-status="rollback-completed"]')).toBeVisible();
   });
 
-  test('SCEN-365: 過去日時入力で適用実行時にエラー表示', async ({ page }) => {
+  test("SCEN-365: 未選択状態で適用実行エラー", async ({ page }) => {
     // SCEN-365
-    await page.click('text=モデル管理');
-    await page.click('.model-item:first-child .select-button');
-    await page.click('#production-apply-button');
-    await page.fill('#apply-start-datetime', '2020-01-01 10:00:00');
-    await page.click('#execute-apply-button');
-    await expect(page.locator('.error-message')).toHaveText('適用開始日時には現在日時以降を指定してください');
-    await expect(page.locator('.progress-indicator')).not.toBeVisible();
+    await page.goto("/");
+    await page.click('text=モデル本番適用');
+    await page.waitForURL('**/model-deployment');
+    await page.click('text=適用実行');
+    await expect(page.locator('text=適用対象のモデルが選択されていません')).toBeVisible();
   });
 
-  test('SCEN-366: 適用前検証NGでモデル適用が実行不可', async ({ page }) => {
+  test("SCEN-366: 検証未完了モデル適用エラー", async ({ page }) => {
     // SCEN-366
+    await page.goto("/");
     await page.click('text=モデル管理');
-    await page.click('.model-item.validation-ng:first-child .select-button');
-    await page.click('#production-apply-button');
-    await expect(page.locator('.validation-progress')).toBeVisible();
-    await expect(page.locator('.validation-error')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('.error-details')).toContainText('データ品質チェックNG');
-    await expect(page.locator('#execute-apply-button')).toBeDisabled();
+    await page.waitForURL('**/model-management');
+    await page.click('[data-status="unverified"]:first-child');
+    await page.click('text=本番適用');
+    await page.click('text=適用');
+    await expect(page.locator('text=検証が完了していないモデルは本番適用できません')).toBeVisible();
   });
 
-  test('SCEN-367: 適用処理中にシステムエラーが発生した場合の表示', async ({ page }) => {
+  test("SCEN-367: 店舗未選択で適用実行エラー", async ({ page }) => {
     // SCEN-367
-    await page.click('text=モデル管理');
-    await page.click('.model-item:first-child .select-button');
-    await page.click('#production-apply-button');
-    await page.click('#confirm-execute');
-    await expect(page.locator('.progress-indicator')).toBeVisible();
-    await page.route('**/api/model/apply', route => route.abort());
-    await expect(page.locator('.system-error-message')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('.error-details')).toContainText('システムエラーが発生しました');
-    await expect(page.locator('.retry-option')).toBeVisible();
-    await expect(page.locator('.contact-admin')).toBeVisible();
+    await page.goto("/");
+    await page.click('text=モデル本番適用');
+    await page.waitForURL('**/model-deployment');
+    await page.selectOption('[name="model"]', { index: 1 });
+    await page.click('text=適用実行');
+    await expect(page.locator('text=店舗が選択されていません')).toBeVisible();
   });
 
-  test('SCEN-368: 適用開始日時に現在時刻を入力して即座実行', async ({ page }) => {
+  test("SCEN-368: 過去日時指定で適用エラー", async ({ page }) => {
     // SCEN-368
-    await page.click('text=モデル本番適用処理');
-    await page.selectOption('#model-select', '1');
-    const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    await page.fill('#apply-start-datetime', now);
-    await page.click('#execute-start-button');
-    await page.click('#confirm-ok');
-    await expect(page.locator('.processing-status')).toHaveText('適用中');
-    await expect(page.locator('.error-message')).not.toBeVisible();
+    await page.goto("/");
+    await page.click('text=モデル管理');
+    await page.waitForURL('**/model-management');
+    await page.click('[data-testid="model-row"]:first-child');
+    await page.click('text=本番適用');
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    await page.fill('[name="deployment-datetime"]', yesterday.toISOString().slice(0, 16));
+    await page.click('text=適用実行');
+    await expect(page.locator('text=適用日時は現在日時以降を指定してください')).toBeVisible();
   });
 
-  test('SCEN-369: 全店舗選択でモデル適用実行', async ({ page }) => {
+  test("SCEN-369: 適用処理中の重複実行エラー", async ({ page, context }) => {
     // SCEN-369
-    await page.click('text=モデル本番適用処理');
-    await page.check('#select-all-stores');
-    await expect(page.locator('.store-checkbox:checked')).toHaveCount(await page.locator('.store-checkbox').count());
-    await page.selectOption('#model-select', '1');
-    await page.click('#execute-apply-button');
-    await page.click('#confirm-execute');
-    await expect(page.locator('.progress-indicator')).toBeVisible();
-    await expect(page.locator('.completion-message')).toBeVisible({ timeout: 30000 });
-    await expect(page.locator('.store-status')).toContainText('適用済み');
-    await expect(page.locator('.apply-datetime')).not.toBeEmpty();
+    await page.goto("/");
+    await page.click('text=モデル本番適用');
+    await page.waitForURL('**/model-deployment');
+    await page.selectOption('[name="model"]', { index: 1 });
+    await page.check('[name="store"]:first-child');
+    await page.click('text=本番適用開始');
+    await page.waitForSelector('[data-testid="processing-indicator"]');
+    
+    const newPage = await context.newPage();
+    await newPage.goto(process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000");
+    await newPage.click('text=モデル本番適用');
+    await newPage.selectOption('[name="model"]', { index: 1 });
+    await newPage.check('[name="store"]:first-child');
+    await newPage.click('text=本番適用開始');
+    await expect(newPage.locator('text=既に適用処理が実行中です')).toBeVisible();
   });
 
-  test('SCEN-370: 現行モデル保持期間を最大値に設定', async ({ page }) => {
+  test("SCEN-370: 適用前状態でロールバックエラー", async ({ page }) => {
     // SCEN-370
-    await page.click('text=モデル本番適用処理');
-    await page.click('#settings-tab');
-    await page.fill('#model-retention-period', '9999');
-    await page.click('#save-settings');
-    await page.click('#confirm-ok');
-    await expect(page.locator('.save-success-message')).toBeVisible();
-    await page.reload();
-    await expect(page.locator('#model-retention-period')).toHaveValue('9999');
+    await page.goto("/");
+    await page.click('text=モデル管理');
+    await page.waitForURL('**/model-management');
+    await page.click('[data-status="draft"]:first-child');
+    await page.click('text=ロールバック');
+    await expect(page.locator('text=ロールバック対象のモデルが存在しません')).toBeVisible();
   });
 
-  test('SCEN-371: 現行モデル保持期間を最小値に設定', async ({ page }) => {
+  test("SCEN-371: 保持期間0日設定で警告表示", async ({ page }) => {
     // SCEN-371
+    await page.goto("/");
     await page.click('text=モデル管理');
-    await page.click('#settings-tab');
-    await page.fill('#model-retention-period', '1');
-    await page.click('#save-settings');
-    await page.selectOption('#model-select', '1');
-    await page.click('#apply-model');
-    await expect(page.locator('.apply-completion')).toBeVisible({ timeout: 30000 });
-    await page.click('#simulate-time-advance');
-    await expect(page.locator('.old-model')).not.toBeVisible();
-    await expect(page.locator('.current-model')).toBeVisible();
+    await page.waitForURL('**/model-management');
+    await page.click('[data-testid="model-row"]:first-child');
+    await page.click('text=本番適用');
+    await page.fill('[name="retention-period"]', '0');
+    await page.click('text=適用実行');
+    await expect(page.locator('text=保持期間に0日が設定されています')).toBeVisible();
   });
 
-  test('SCEN-372: 適用処理中に画面更新や他操作を実行', async ({ page }) => {
+  test("SCEN-372: 保持期間上限値設定で正常処理", async ({ page }) => {
     // SCEN-372
-    await page.click('text=モデル管理');
-    await page.click('.model-item:first-child .select-button');
-    await page.click('#production-apply-button');
-    await expect(page.locator('.progress-indicator')).toBeVisible();
+    await page.goto("/");
+    await page.click('text=モデル本番適用');
+    await page.waitForURL('**/model-deployment');
+    await page.fill('[name="retention-period"]', '999');
+    await page.selectOption('[name="model"]', { index: 1 });
+    await page.check('[name="store"]:first-child');
+    await page.click('text=本番適用実行');
+    await page.click('text=実行');
+    await page.waitForSelector('text=適用完了', { timeout: 60000 });
+    await expect(page.locator('[data-retention="999"]')).toBeVisible();
+  });
+
+  test("SCEN-373: 全店舗選択時の影響範囲表示", async ({ page }) => {
+    // SCEN-373
+    await page.goto("/");
+    await page.click('text=モデル本番適用');
+    await page.waitForURL('**/model-deployment');
+    await page.check('[name="select-all-stores"]');
+    await expect(page.locator('[data-testid="impact-area"]')).toBeVisible();
+    await expect(page.locator('[data-testid="store-count"]')).toContainText('店舗数');
+    await expect(page.locator('[data-testid="category-count"]')).toContainText('商品カテゴリ数');
+    await expect(page.locator('[data-testid="estimated-time"]')).toContainText('予想処理時間');
+    await expect(page.locator('text=大規模処理に関する警告')).toBeVisible();
+  });
+
+  test("SCEN-374: 適用開始日時境界値での処理", async ({ page }) => {
+    // SCEN-374
+    await page.goto("/");
+    await page.click('text=モデル本番適用');
+    await page.waitForURL('**/model-deployment');
+    
+    const pastTime = new Date(Date.now() - 60000);
+    await page.fill('[name="deployment-datetime"]', pastTime.toISOString().slice(0, 16));
+    await page.selectOption('[name="model"]', { index: 1 });
+    await page.check('[name="store"]:first-child');
+    await page.click('text=モデル適用処理実行');
+    await expect(page.locator('text=適用日時は現在日時以降を指定してください')).toBeVisible();
+    
+    const currentTime = new Date();
+    await page.fill('[name="deployment-datetime"]', currentTime.toISOString().slice(0, 16));
+    await page.click('text=モデル適用処理実行');
+    await page.waitForSelector('text=処理完了', { timeout: 30000 });
+    
+    const futureTime = new Date(Date.now() + 60000);
+    await page.fill('[name="deployment-datetime"]', futureTime.toISOString().slice(0, 16));
+    await page.click('text=モデル適用処理実行');
+    await page.waitForSelector('text=処理完了', { timeout: 30000 });
+  });
+
+  test("SCEN-375: 適用処理中断時の状態保持", async ({ page }) => {
+    // SCEN-375
+    await page.goto("/");
+    await page.click('text=モデル本番適用');
+    await page.waitForURL('**/model-deployment');
+    await page.selectOption('[name="model"]', { index: 1 });
+    await page.check('[name="store"]:first-child');
+    await page.click('text=本番適用開始');
+    await page.waitForSelector('[data-testid="processing-indicator"]');
     await page.reload();
-    await expect(page.locator('.refresh-warning')).toBeVisible();
-    await page.click('#cancel-refresh');
-    await page.click('text=需要予測');
-    await expect(page.locator('.navigation-blocked')).toBeVisible();
-    await page.click('.model-item:nth-child(2) .apply-button');
-    await expect(page.locator('.operation-blocked')).toBeVisible();
-    await page.click('#logout-button');
-    await expect(page.locator('.logout-warning')).toBeVisible();
-    await expect(page.locator('.completion-notification')).toBeVisible({ timeout: 30000 });
+    await expect(page.locator('[data-testid="processing-indicator"]')).toBeVisible();
+    await expect(page.locator('[data-status="processing"]')).toBeVisible();
   });
 });
